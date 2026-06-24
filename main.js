@@ -4,6 +4,7 @@
 const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { spawn } = require('child_process');
 
 // Security: keep reference to prevent garbage collection
 let mainWindow = null;
@@ -316,6 +317,47 @@ function setupIPC() {
     }
   });
   ipcMain.on('close-window', () => mainWindow?.close());
+
+  // Python bridge — run YOHO scripts
+  ipcMain.handle('run-python', async (_, scriptName, args = []) => {
+    const backendDir = path.join(__dirname, 'backend', 'YOHO-main');
+    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+
+    return new Promise((resolve) => {
+      const proc = spawn(pythonCmd, [scriptName, ...args], {
+        cwd: backendDir,
+        env: { ...process.env, PYTHONUNBUFFERED: '1' },
+      });
+
+      let stdout = '';
+      let stderr = '';
+
+      proc.stdout.on('data', (data) => {
+        const text = data.toString();
+        stdout += text;
+        // Forward progress to renderer
+        if (mainWindow) {
+          mainWindow.webContents.send('python-output', { type: 'stdout', text });
+        }
+      });
+
+      proc.stderr.on('data', (data) => {
+        const text = data.toString();
+        stderr += text;
+        if (mainWindow) {
+          mainWindow.webContents.send('python-output', { type: 'stderr', text });
+        }
+      });
+
+      proc.on('close', (code) => {
+        resolve({ code, stdout, stderr });
+      });
+
+      proc.on('error', (err) => {
+        resolve({ code: -1, stdout, stderr: err.message });
+      });
+    });
+  });
 }
 
 // ============================================

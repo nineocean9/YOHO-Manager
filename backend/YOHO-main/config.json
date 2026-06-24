@@ -1,0 +1,16 @@
+{
+  "dataset": {
+    "sample_count": 350
+  },
+  "training": {
+    "freeze_epochs": 20,
+    "unfreeze_epochs": 30,
+    "freeze_batch_size": 32,
+    "unfreeze_batch_size": 32,
+    "freeze_lr": 0.001,
+    "unfreeze_lr": 3e-05
+  },
+  "prediction": {
+    "model_epoch": 30
+  }
+}

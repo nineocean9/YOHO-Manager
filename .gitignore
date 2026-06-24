@@ -49,3 +49,11 @@ results/
 seg/
 __pycache__/
 *.pyc
+backend/YOHO-main/logs/
+backend/YOHO-main/Medical_Datasets/
+backend/YOHO-main/EEC_save_sample_13.0/
+backend/YOHO-main/img_out/
+backend/YOHO-main/results/
+backend/YOHO-main/seg/
+backend/YOHO-main/__pycache__/
+backend/YOHO-main/model_data/

@@ -18,7 +18,10 @@
       "Bash(git remote *)",
       "Bash(git push *)",
       "Bash(git branch *)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(mkdir -p backend)",
+      "Bash(cp -r \"C:\\\\Users\\\\chenyuhao\\\\Desktop\\\\YOHO\\\\YOHO-main\" backend/)",
+      "Bash(python -c \"import torch; print\\('PyTorch OK'\\); import cv2; print\\('OpenCV OK'\\); import numpy; print\\('NumPy OK'\\)\")"
     ]
   }
 }

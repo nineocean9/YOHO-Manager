@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // --- App Info ---
   getAppInfo: () => ipcRenderer.invoke('get-app-info'),
 
+  // --- Python Backend ---
+  runPython: (scriptName, args) => ipcRenderer.invoke('run-python', scriptName, args),
+
   // --- Window Controls ---
   minimizeWindow: () => ipcRenderer.send('minimize-window'),
   maximizeWindow: () => ipcRenderer.send('maximize-window'),
@@ -28,6 +31,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
       'navigate',
       'action',
       'open-settings',
+      'python-output',
     ];
     if (validChannels.includes(channel)) {
       const subscription = (_event, ...args) => callback(...args);
