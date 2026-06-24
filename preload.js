@@ -17,6 +17,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // --- Python Backend ---
   runPython: (scriptName, args) => ipcRenderer.invoke('run-python', scriptName, args),
 
+  // --- File Save ---
+  saveFile: (filePath, base64Data) => ipcRenderer.invoke('save-file', filePath, base64Data),
+
   // --- Window Controls ---
   minimizeWindow: () => ipcRenderer.send('minimize-window'),
   maximizeWindow: () => ipcRenderer.send('maximize-window'),

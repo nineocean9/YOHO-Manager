@@ -358,6 +358,20 @@ function setupIPC() {
       });
     });
   });
+
+  // Save file to disk from renderer
+  ipcMain.handle('save-file', async (_, filePath, base64Data) => {
+    try {
+      const fullPath = path.join(__dirname, filePath);
+      const dir = path.dirname(fullPath);
+      fs.mkdirSync(dir, { recursive: true });
+      const buffer = Buffer.from(base64Data, 'base64');
+      fs.writeFileSync(fullPath, buffer);
+      return { success: true, path: fullPath };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  });
 }
 
 // ============================================

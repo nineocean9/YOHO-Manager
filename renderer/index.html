@@ -435,8 +435,16 @@ h4 { font-size: 1.125rem; }
   display: none;
   padding: var(--space-8) 0;
 }
+.module-panel.workspace-panel {
+  padding: 0;
+  height: 100%;
+}
 .module-panel.active {
   display: block;
+}
+.module-panel.workspace-panel.active {
+  display: block;
+  height: 100%;
 }
 #module-roi.module-panel, #module-labeling.module-panel {
   padding: 0;
@@ -2187,11 +2195,16 @@ h4 { font-size: 1.125rem; }
 
     <!-- ROI 标注 Module -->
     <!-- ROI 标注工作区 -->
-    <div class="module-panel" id="module-roi">
+    <div class="module-panel workspace-panel" id="module-roi">
       <div class="roi-workspace">
         <!-- 工具栏 -->
         <div class="roi-toolbar">
           <div class="roi-toolbar-left">
+            <label class="roi-param" style="cursor:pointer">
+              <input type="checkbox" id="roi-reverse-roi" onchange="roiToggleReverse()">
+              <span>反转 ROI</span>
+            </label>
+            <span class="roi-toolbar-sep"></span>
             <button class="btn btn-outline btn-sm" onclick="roiUndo()" id="roi-btn-undo" disabled>撤销</button>
             <button class="btn btn-outline btn-sm" onclick="roiSmooth()" id="roi-btn-smooth" disabled>平滑</button>
             <button class="btn btn-outline btn-sm" onclick="roiClear()" id="roi-btn-clear" disabled>清除</button>
@@ -2236,16 +2249,11 @@ h4 { font-size: 1.125rem; }
     </div>
 
     <!-- 交互式标注 Module -->
-    <div class="module-panel" id="module-labeling">
+    <div class="module-panel workspace-panel" id="module-labeling">
       <div class="roi-workspace">
         <!-- 工具栏 -->
         <div class="roi-toolbar">
           <div class="roi-toolbar-left">
-            <label class="roi-param" style="cursor:pointer">
-              <input type="checkbox" id="labeling-reverse-roi" onchange="labelingToggleReverse()">
-              <span>反转 ROI</span>
-            </label>
-            <span class="roi-toolbar-sep"></span>
             <button class="btn btn-outline btn-sm" onclick="labelingUndo()" id="labeling-btn-undo" disabled>撤销</button>
             <button class="btn btn-outline btn-sm" onclick="labelingClear()" id="labeling-btn-clear" disabled>清除</button>
             <span class="roi-toolbar-sep"></span>
@@ -2580,7 +2588,13 @@ let roiState = {
   userZoom: 1.0,        // user zoom multiplier
   mouseX: -1,           // current mouse position for preview line
   mouseY: -1,
+  reverseRoi: false,
 };
+
+function roiToggleReverse() {
+  roiState.reverseRoi = document.getElementById('roi-reverse-roi').checked;
+  showToast(roiState.reverseRoi ? '反转 ROI 模式：ROI 画在正常组织上' : '常规模式：ROI 画在病灶区域', 'info');
+}
 
 function roiInitCanvas(image) {
   const canvas = document.getElementById('roi-canvas');
@@ -2611,6 +2625,8 @@ function roiInitCanvas(image) {
         y: p.y * roiState.scale + roiState.offsetY
       }));
       roiState.isClosed = true;
+      roiState.reverseRoi = sel.image.reverseRoi || false;
+      document.getElementById('roi-reverse-roi').checked = roiState.reverseRoi;
       showToast('已加载历史 ROI 标注', 'info');
     }
 
@@ -2877,12 +2893,48 @@ function saveRoiAndNext() {
   const sel = PatientManager.getSelectedImage();
   if (!sel) return;
   const patient = PatientManager.getSelectedPatient();
-  // Save ROI points as image coordinates for reload
+
+  // Convert ROI canvas points back to image coordinates
   const roiImagePoints = roiState.points.map(p => roiCanvasToImage(p.x, p.y));
+  const maskFilename = sel.image.name.replace(/\.\w+$/, '') + '.png';
+  const maskRelPath = 'backend/YOHO-main/Dataset/EEC/EEC_test_dataset_label/' + maskFilename;
+
+  // Generate binary mask PNG from ROI polygon
+  const img = roiState.image;
+  const offscreen = document.createElement('canvas');
+  offscreen.width = img.naturalWidth || img.width;
+  offscreen.height = img.naturalHeight || img.height;
+  const offCtx = offscreen.getContext('2d');
+  offCtx.fillStyle = '#000000';
+  offCtx.fillRect(0, 0, offscreen.width, offscreen.height);
+  offCtx.fillStyle = '#ffffff';
+  offCtx.beginPath();
+  offCtx.moveTo(roiImagePoints[0].x, roiImagePoints[0].y);
+  for (let i = 1; i < roiImagePoints.length; i++) {
+    offCtx.lineTo(roiImagePoints[i].x, roiImagePoints[i].y);
+  }
+  offCtx.closePath();
+  offCtx.fill();
+
+  // Save mask to disk
+  const base64 = offscreen.toDataURL('image/png').split(',')[1];
+  if (isElectron) {
+    electronAPI.saveFile(maskRelPath, base64).then(result => {
+      if (!result.success) showToast('ROI mask 写入失败: ' + result.error, 'error');
+    });
+  } else {
+    // Browser fallback: download
+    const a = document.createElement('a');
+    a.href = offscreen.toDataURL('image/png');
+    a.download = maskFilename;
+    a.click();
+  }
+
   StorageAdapter.updateImage(patient.id, sel.check.id, sel.image.id, {
     status: 'roi_done',
-    roiMaskPath: 'Dataset/EEC/EEC_test_dataset_label/' + sel.image.name.replace(/\.\w+$/, '') + '.png',
-    roiPoints: roiImagePoints
+    roiMaskPath: maskRelPath,
+    roiPoints: roiImagePoints,
+    reverseRoi: roiState.reverseRoi
   });
   StorageAdapter.updatePatient(patient.id, { status: 'processing' });
   StorageAdapter.reset();
@@ -2918,6 +2970,7 @@ const labelingState = {
   imgWidth: 0,
   imgHeight: 0,
   points: [],        // { x, y, r } — canvas coordinates
+  roiPoints: [],     // ROI polygon for overlay
   reverseRoi: false,
   mouseX: -1,
   mouseY: -1,
@@ -2964,12 +3017,29 @@ function labelingRedraw() {
   const canvas = document.getElementById('labeling-canvas');
   if (!canvas || !labelingState.image) return;
   const ctx = canvas.getContext('2d');
-  const { offsetX, offsetY, imgWidth, imgHeight, points, phase } = labelingState;
+  const { offsetX, offsetY, imgWidth, imgHeight, points, roiPoints } = labelingState;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = '#1a1a2e';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(labelingState.image, offsetX, offsetY, imgWidth, imgHeight);
+
+  // Draw ROI polygon overlay
+  if (roiPoints && roiPoints.length >= 3) {
+    ctx.beginPath();
+    ctx.moveTo(roiPoints[0].x, roiPoints[0].y);
+    for (let i = 1; i < roiPoints.length; i++) {
+      ctx.lineTo(roiPoints[i].x, roiPoints[i].y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(239, 68, 68, 0.08)';
+    ctx.fill();
+  }
 
   // Draw placed sampling points
   points.forEach((p, i) => {
@@ -3151,9 +3221,7 @@ function updateLabelingHint() {
   if (labelingState.placingRadius) {
     el.textContent = '移动鼠标调整半径，点击确认';
   } else {
-    el.textContent = labelingState.reverseRoi
-      ? '反转ROI模式：在正常组织区域放置采样圈，右键撤销'
-      : '在病灶区域放置采样圈，右键撤销，至少放置 2 个';
+    el.textContent = '左键点击放置采样圈，再次点击调整半径，右键撤销，至少放置 2 个';
   }
   if (countEl) countEl.textContent = labelingState.points.length + ' 个采样点';
 }
@@ -3163,24 +3231,35 @@ function labelingLoadImage(path) {
   img.onload = () => {
     labelingState.image = img;
     labelingState.points = [];
+    labelingState.roiPoints = [];  // ROI overlay points
     labelingState.placingRadius = false;
     labelingState.userZoom = 1;
     labelingState._lastPath = path;
     document.getElementById('labeling-canvas-placeholder').style.display = 'none';
     labelingRecalcLayout();
 
-    // Load existing sampling points if available
+    // Load saved ROI polygon for overlay
     const sel = PatientManager.getSelectedImage();
-    if (sel && sel.image.samplePoints && sel.image.samplePoints.length > 0) {
-      const scale = labelingState.scale;
-      labelingState.points = sel.image.samplePoints.map(p => ({
-        x: p.x * scale + labelingState.offsetX,
-        y: p.y * scale + labelingState.offsetY,
-        r: p.r * scale
-      }));
+    if (sel && sel.image) {
       labelingState.reverseRoi = sel.image.reverseRoi || false;
-      document.getElementById('labeling-reverse-roi').checked = labelingState.reverseRoi;
-      showToast('已加载历史采样数据', 'info');
+      // Load ROI polygon points
+      if (sel.image.roiPoints && sel.image.roiPoints.length > 0) {
+        const scale = labelingState.scale;
+        labelingState.roiPoints = sel.image.roiPoints.map(p => ({
+          x: p.x * scale + labelingState.offsetX,
+          y: p.y * scale + labelingState.offsetY
+        }));
+      }
+      // Load existing sampling points if available
+      if (sel.image.samplePoints && sel.image.samplePoints.length > 0) {
+        const scale = labelingState.scale;
+        labelingState.points = sel.image.samplePoints.map(p => ({
+          x: p.x * scale + labelingState.offsetX,
+          y: p.y * scale + labelingState.offsetY,
+          r: p.r * scale
+        }));
+        showToast('已加载历史采样数据', 'info');
+      }
     }
 
     labelingRedraw();
