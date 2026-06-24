@@ -1007,6 +1007,31 @@ h4 { font-size: 1.125rem; }
   flex-shrink: 0;
 }
 
+.roi-debug {
+  display: flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-4);
+  background: #1e1e2e;
+  color: #cba6f7;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  flex-shrink: 0;
+  gap: var(--space-3);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.roi-debug.hidden { display: none; }
+.roi-debug-toggle {
+  cursor: pointer;
+  font-size: 0.625rem;
+  color: var(--color-muted-foreground);
+  padding: 2px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: none;
+}
+.roi-debug-toggle:hover { background: var(--color-primary-light); }
+
 .workflow-progress {
   display: flex;
   align-items: center;
@@ -2228,6 +2253,7 @@ h4 { font-size: 1.125rem; }
           </div>
           <div class="roi-toolbar-right">
             <button class="btn btn-accent btn-sm" onclick="saveRoiAndNext()" id="roi-btn-save" disabled>保存并继续</button>
+            <button class="roi-debug-toggle" onclick="roiToggleDebug()" title="调试信息">🐛</button>
           </div>
         </div>
 
@@ -2244,6 +2270,10 @@ h4 { font-size: 1.125rem; }
         <div class="roi-statusbar">
           <span id="roi-hint-text">点击图像添加轮廓点，靠近起点闭合多边形，右键撤销</span>
           <span id="roi-point-count" style="color:var(--color-muted-foreground)"></span>
+        </div>
+        <!-- 调试信息 -->
+        <div class="roi-debug hidden" id="roi-debug">
+          <span id="roi-debug-text"></span>
         </div>
       </div>
     </div>
@@ -2263,6 +2293,7 @@ h4 { font-size: 1.125rem; }
           </div>
           <div class="roi-toolbar-right">
             <button class="btn btn-accent btn-sm" onclick="labelingFinishPhase()" id="labeling-btn-finish" disabled>保存并继续</button>
+            <button class="roi-debug-toggle" onclick="labelingToggleDebug()" title="调试信息">🐛</button>
           </div>
         </div>
 
@@ -2279,6 +2310,10 @@ h4 { font-size: 1.125rem; }
         <div class="roi-statusbar">
           <span id="labeling-hint-text">在病灶区域放置采样圈，右键撤销，至少放置 2 个采样点</span>
           <span id="labeling-point-count" style="color:var(--color-muted-foreground)"></span>
+        </div>
+        <!-- 调试信息 -->
+        <div class="roi-debug hidden" id="labeling-debug">
+          <span id="labeling-debug-text"></span>
         </div>
       </div>
     </div>
@@ -3225,6 +3260,73 @@ function updateLabelingHint() {
   }
   if (countEl) countEl.textContent = labelingState.points.length + ' 个采样点';
 }
+
+/* ============================================
+   Debug Tools
+   ============================================ */
+let _debugVisible = false;
+
+function roiUpdateDebug() {
+  const el = document.getElementById('roi-debug-text');
+  if (!el) return;
+  const p = roiState.points;
+  const info = [
+    'Pts: ' + p.length,
+    'Closed: ' + roiState.isClosed,
+    'Zoom: ' + (roiState.userZoom * 100).toFixed(0) + '%',
+    'Img: ' + (roiState.image ? roiState.image.width + 'x' + roiState.image.height : 'none'),
+    'Scale: ' + roiState.scale?.toFixed(3),
+  ].join('  |  ');
+  el.textContent = info;
+}
+
+function labelingUpdateDebug() {
+  const el = document.getElementById('labeling-debug-text');
+  if (!el) return;
+  const p = labelingState.points;
+  const roiPts = labelingState.roiPoints;
+  const sel = PatientManager.getSelectedImage();
+  const img = labelingState.image;
+  const info = [
+    '采样点: ' + p.length,
+    'ROI点: ' + roiPts.length,
+    '反转: ' + (labelingState.reverseRoi ? '是' : '否'),
+    '缩放: ' + (labelingState.userZoom * 100).toFixed(0) + '%',
+    '图片: ' + (img ? img.width + 'x' + img.height : 'none'),
+    '路径: ' + (sel?.image?.path || '无'),
+  ].join('  |  ');
+  el.textContent = info;
+}
+
+function roiToggleDebug() {
+  _debugVisible = !_debugVisible;
+  document.getElementById('roi-debug').classList.toggle('hidden', !_debugVisible);
+  if (_debugVisible) roiUpdateDebug();
+}
+
+function labelingToggleDebug() {
+  _debugVisible = !_debugVisible;
+  document.getElementById('labeling-debug').classList.toggle('hidden', !_debugVisible);
+  if (_debugVisible) labelingUpdateDebug();
+}
+
+// Update debug automatically on redraw
+(function patchRedraw() {
+  const _orig = roiRedraw;
+  const _labelingOrig = labelingRedraw;
+  if (typeof roiRedraw === 'function') {
+    window.roiRedraw = function() {
+      _orig();
+      if (_debugVisible) roiUpdateDebug();
+    };
+  }
+  if (typeof labelingRedraw === 'function') {
+    window.labelingRedraw = function() {
+      _labelingOrig();
+      if (_debugVisible) labelingUpdateDebug();
+    };
+  }
+})();
 
 function labelingLoadImage(path) {
   const img = new Image();
@@ -4311,18 +4413,9 @@ function loadImageIntoWorkflow(image) {
   }
 }
 
-function saveRoiAndNext() {
-  const sel = PatientManager.getSelectedImage();
-  if (!sel) return;
-  // Update image status to roi_done
-  const patient = PatientManager.getSelectedPatient();
-  StorageAdapter.updateImage(patient.id, sel.check.id, sel.image.id, { status: 'roi_done' });
-  StorageAdapter.updatePatient(patient.id, { status: 'processing' });
-  StorageAdapter.reset();
-  showToast('ROI 已保存 — moving to 交互式标注', 'success');
-  switchModule('labeling');
-}
-
+/* ============================================
+   Start / Exit Workflow
+   ============================================ */
 function startWorkflow() {
   PatientManager.startWorkflow();
 }
