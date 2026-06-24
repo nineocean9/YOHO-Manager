@@ -438,6 +438,14 @@ h4 { font-size: 1.125rem; }
 .module-panel.active {
   display: block;
 }
+#module-roi.module-panel, #module-labeling.module-panel {
+  padding: 0;
+  height: 100%;
+}
+#module-roi.module-panel.active, #module-labeling.module-panel.active {
+  display: flex;
+  flex-direction: column;
+}
 
 /* ============================================
    Patient List (in Sidebar)
@@ -860,6 +868,135 @@ h4 { font-size: 1.125rem; }
 }
 .workflow-back-btn.visible {
   display: inline-flex;
+}
+
+/* ============================================
+   ROI Workspace
+   ============================================ */
+.roi-workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-bg);
+}
+
+.roi-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.roi-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.roi-toolbar-center {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.roi-zoom-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-foreground);
+  transition: all var(--transition-fast);
+}
+.roi-zoom-btn:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.roi-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.roi-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+  margin: 0 var(--space-1);
+}
+
+.roi-phase-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+}
+
+.roi-param {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+}
+.roi-param .input {
+  min-height: 28px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.roi-canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.roi-canvas-wrap canvas {
+  display: block;
+  cursor: crosshair;
+}
+
+.roi-canvas-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: rgba(255,255,255,0.3);
+  pointer-events: none;
+}
+
+.roi-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border-light);
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+  flex-shrink: 0;
 }
 
 .workflow-progress {
@@ -1418,7 +1555,7 @@ h4 { font-size: 1.125rem; }
 }
 
 /* ============================================
-   Settings Panel
+   设置 Panel
    ============================================ */
 .settings-grid {
   display: grid;
@@ -1772,9 +1909,9 @@ h4 { font-size: 1.125rem; }
       Back to Dashboard
     </button>
     <nav class="nav" role="navigation" aria-label="Main navigation">
-      <button class="btn btn-outline btn-sm" onclick="openSettingsPanel()" aria-label="Open settings">
+      <button class="btn btn-outline btn-sm" onclick="open设置Panel()" aria-label="Open settings">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
+        设置
       </button>
       <!-- Electron window controls (only visible when is-electron) -->
       <span class="nav-divider" id="electron-divider"></span>
@@ -1905,7 +2042,7 @@ h4 { font-size: 1.125rem; }
           </div>
           <h1 class="hero-title">
             智能医疗影像
-            <span class="highlight">Recognition & Annotation</span>
+            <span class="highlight">识别与标注</span>
           </h1>
           <p class="hero-desc">
             从左侧选择患者，查看图像并开始处理。
@@ -1913,7 +2050,7 @@ h4 { font-size: 1.125rem; }
           <div class="hero-actions">
             <button class="btn btn-primary btn-lg" onclick="openPatientModal()">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              New Patient
+              新建患者
             </button>
           </div>
           <div class="stats-bar" aria-label="Platform statistics" style="margin-top:var(--space-6)">
@@ -2049,97 +2186,91 @@ h4 { font-size: 1.125rem; }
     </div>
 
     <!-- ROI 标注 Module -->
+    <!-- ROI 标注工作区 -->
     <div class="module-panel" id="module-roi">
-      <div class="container">
-        <div class="section-header">
-          <h2>ROI 标注</h2>
-          <p id="roi-section-desc">使用精确标注工具在医疗图像上绘制感兴趣区域</p>
+      <div class="roi-workspace">
+        <!-- 工具栏 -->
+        <div class="roi-toolbar">
+          <div class="roi-toolbar-left">
+            <button class="btn btn-outline btn-sm" onclick="roiUndo()" id="roi-btn-undo" disabled>撤销</button>
+            <button class="btn btn-outline btn-sm" onclick="roiSmooth()" id="roi-btn-smooth" disabled>平滑</button>
+            <button class="btn btn-outline btn-sm" onclick="roiClear()" id="roi-btn-clear" disabled>清除</button>
+            <span class="roi-toolbar-sep"></span>
+            <button class="roi-zoom-btn" onclick="roiZoom(-0.2)" title="缩小">−</button>
+            <span style="font-size:0.75rem;color:var(--color-muted-foreground);min-width:40px;text-align:center" id="roi-zoom-label">100%</span>
+            <button class="roi-zoom-btn" onclick="roiZoom(0.2)" title="放大">+</button>
+            <span class="roi-toolbar-sep"></span>
+            <label class="roi-param">
+              <span>平滑次数</span>
+              <input type="number" id="roi-smooth-iters" value="2" min="0" max="10" style="width:48px" class="input">
+            </label>
+            <label class="roi-param">
+              <span>模糊半径</span>
+              <input type="number" id="roi-blur-radius" value="2.0" min="0" max="10" step="0.5" style="width:48px" class="input">
+            </label>
+            <label class="roi-param">
+              <span>扩展像素</span>
+              <input type="number" id="roi-expand-px" value="2" min="0" max="20" style="width:48px" class="input">
+            </label>
+          </div>
+          <div class="roi-toolbar-right">
+            <button class="btn btn-accent btn-sm" onclick="saveRoiAndNext()" id="roi-btn-save" disabled>保存并继续</button>
+          </div>
         </div>
 
-        <div class="bento-grid">
-          <div class="bento-card col-span-2 row-span-2" tabindex="0" role="article" aria-label="ROI 标注 Canvas">
-            <div class="card-icon cyan">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>
-            </div>
-            <div class="card-title">Annotation Canvas</div>
-            <div class="card-desc" id="roi-canvas-desc">Click to place polygon vertices on the image. Draw precise ROIs around lesions with undo, smooth, and expand controls.</div>
-            <div class="card-preview" id="roi-canvas-preview">
-              <div class="card-preview-placeholder" id="roi-placeholder">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="4" height="4" rx="0.5"/><rect x="13" y="10" width="6" height="5" rx="1"/></svg>
-                <span id="roi-placeholder-text">从仪表盘选择图像并点击开始处理</span>
-              </div>
-              <img id="roi-image-preview" src="" alt="ROI annotation image" style="display:none;width:100%;max-height:300px;object-fit:contain;border-radius:var(--radius-md)">
-            </div>
-            <div id="roi-actions" style="margin-top:12px;display:flex;gap:var(--space-2);flex-wrap:wrap">
-              <button class="btn btn-primary btn-sm" onclick="showToast('ROI 工具已就绪', 'info')">绘制ROI</button>
-              <button class="btn btn-outline btn-sm" onclick="showToast('Undo', 'info')">撤销</button>
-              <button class="btn btn-outline btn-sm" onclick="showToast('平滑已应用', 'success')">平滑</button>
-              <button class="btn btn-accent btn-sm" onclick="saveRoiAndNext()">Save & Continue</button>
-            </div>
+        <!-- Canvas 画布 -->
+        <div class="roi-canvas-wrap">
+          <canvas id="roi-canvas"></canvas>
+          <div class="roi-canvas-placeholder" id="roi-canvas-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="4" height="4" rx="0.5"/><rect x="13" y="10" width="6" height="5" rx="1"/></svg>
+            <span id="roi-placeholder-text">从仪表盘选择图像并点击开始处理</span>
           </div>
+        </div>
 
-          <div class="bento-card" tabindex="0" role="article" aria-label="ROI Tools">
-            <div class="card-icon cyan">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" x2="12" y1="22" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
-            </div>
-            <div class="card-title">Drawing Tools</div>
-            <div class="card-desc">Polygon, bounding box, ellipse, and freehand drawing modes.</div>
-            <button class="btn btn-outline btn-sm" style="margin-top:auto" onclick="showToast('绘图工具已就绪', 'info')">Select Tool</button>
-          </div>
-
-          <div class="bento-card" tabindex="0" role="article" aria-label="ROI Settings">
-            <div class="card-icon green">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </div>
-            <div class="card-title">Smoothing & Expand</div>
-            <div class="card-desc">Smooth contours, expand pixel margins, and invert ROI for large lesions.</div>
-            <button class="btn btn-outline btn-sm" style="margin-top:auto" onclick="showToast('ROI settings opened', 'success')">Configure</button>
-          </div>
+        <!-- 底部提示 -->
+        <div class="roi-statusbar">
+          <span id="roi-hint-text">点击图像添加轮廓点，靠近起点闭合多边形，右键撤销</span>
+          <span id="roi-point-count" style="color:var(--color-muted-foreground)"></span>
         </div>
       </div>
     </div>
 
     <!-- 交互式标注 Module -->
     <div class="module-panel" id="module-labeling">
-      <div class="container">
-        <div class="section-header">
-          <h2>交互式标注</h2>
-          <p>Place sampling markers on foreground and background tissue regions</p>
+      <div class="roi-workspace">
+        <!-- 工具栏 -->
+        <div class="roi-toolbar">
+          <div class="roi-toolbar-left">
+            <label class="roi-param" style="cursor:pointer">
+              <input type="checkbox" id="labeling-reverse-roi" onchange="labelingToggleReverse()">
+              <span>反转 ROI</span>
+            </label>
+            <span class="roi-toolbar-sep"></span>
+            <button class="btn btn-outline btn-sm" onclick="labelingUndo()" id="labeling-btn-undo" disabled>撤销</button>
+            <button class="btn btn-outline btn-sm" onclick="labelingClear()" id="labeling-btn-clear" disabled>清除</button>
+            <span class="roi-toolbar-sep"></span>
+            <button class="roi-zoom-btn" onclick="labelingZoom(-0.2)" title="缩小">−</button>
+            <span style="font-size:0.75rem;color:var(--color-muted-foreground);min-width:40px;text-align:center" id="labeling-zoom-label">100%</span>
+            <button class="roi-zoom-btn" onclick="labelingZoom(0.2)" title="放大">+</button>
+          </div>
+          <div class="roi-toolbar-right">
+            <button class="btn btn-accent btn-sm" onclick="labelingFinishPhase()" id="labeling-btn-finish" disabled>保存并继续</button>
+          </div>
         </div>
 
-        <div class="bento-grid">
-          <div class="bento-card col-span-2 row-span-2" tabindex="0" role="article" aria-label="Interactive Sampling">
-            <div class="card-icon green">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" x2="7.01" y1="7" y2="7"/></svg>
-            </div>
-            <div class="card-title">Sampling Canvas</div>
-            <div class="card-desc">Phase 1: Place circle markers on lesion tissue (foreground). Phase 2: Place triangle markers on normal tissue (background). Multi-scale patches are auto-generated on save.</div>
-            <div class="card-preview">
-              <div class="card-preview-placeholder">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><circle cx="8" cy="8" r="3"/><polygon points="16,5 19,11 13,11"/></svg>
-                <span>Load an image to start sampling</span>
-              </div>
-            </div>
-            <button class="btn btn-accent btn-sm" style="margin-top:12px" onclick="showToast('交互采样已开始', 'success')">开始采样</button>
+        <!-- Canvas 画布 -->
+        <div class="roi-canvas-wrap">
+          <canvas id="labeling-canvas"></canvas>
+          <div class="roi-canvas-placeholder" id="labeling-canvas-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><circle cx="8" cy="8" r="3"/><polygon points="16,5 19,11 13,11"/></svg>
+            <span id="labeling-placeholder-text">从仪表盘选择图像并点击开始处理</span>
           </div>
+        </div>
 
-          <div class="bento-card" tabindex="0" role="article" aria-label="Foreground Sampling">
-            <div class="card-icon green">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
-            </div>
-            <div class="card-title">Phase 1: Foreground</div>
-            <div class="card-desc">Mark lesion tissue regions with circle sampling points. Left-click to place, right-click to shrink.</div>
-            <span class="tag tag-success">Lesion Markers</span>
-          </div>
-
-          <div class="bento-card" tabindex="0" role="article" aria-label="Background Sampling">
-            <div class="card-icon amber">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
-            </div>
-            <div class="card-title">Phase 2: Background</div>
-            <div class="card-desc">Mark normal tissue regions with triangle sampling points. Complete both phases to generate the dataset.</div>
-            <span class="tag tag-warning">Normal Markers</span>
-          </div>
+        <!-- 底部提示 -->
+        <div class="roi-statusbar">
+          <span id="labeling-hint-text">在病灶区域放置采样圈，右键撤销，至少放置 2 个采样点</span>
+          <span id="labeling-point-count" style="color:var(--color-muted-foreground)"></span>
         </div>
       </div>
     </div>
@@ -2284,10 +2415,10 @@ h4 { font-size: 1.125rem; }
   </div><!-- /content-area -->
 </div><!-- /app-layout -->
 
-<!-- Settings Modal -->
+<!-- 设置 Modal -->
 <div class="modal-overlay hidden" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal">
-    <h3 class="modal-title" id="modal-title">Platform Settings</h3>
+    <h3 class="modal-title" id="modal-title">Platform 设置</h3>
     <p class="modal-desc">Configure your workspace preferences and model parameters</p>
     <div style="display:flex;flex-direction:column;gap:var(--space-4)">
       <div class="setting-item">
@@ -2431,8 +2562,652 @@ if (isElectron) {
 }
 
 /* ============================================
-   Module Switching
+   ROI Canvas Drawing
    ============================================ */
+let roiState = {
+  image: null,
+  points: [],
+  isClosed: false,
+  closeThreshold: 18,
+  scale: 1.0,
+  offsetX: 0,
+  offsetY: 0,
+  imgWidth: 0,
+  imgHeight: 0,
+  canvasWidth: 0,
+  canvasHeight: 0,
+  baseScale: 1.0,       // base scale (fit to container)
+  userZoom: 1.0,        // user zoom multiplier
+  mouseX: -1,           // current mouse position for preview line
+  mouseY: -1,
+};
+
+function roiInitCanvas(image) {
+  const canvas = document.getElementById('roi-canvas');
+  const placeholder = document.getElementById('roi-canvas-placeholder');
+  if (!canvas || !placeholder) return;
+
+  const img = new Image();
+  img.onload = function() {
+    roiState.image = img;
+    roiState.userZoom = 1.0;
+    placeholder.style.display = 'none';
+
+    const wrap = canvas.parentElement;
+    const maxW = wrap.clientWidth - 32;
+    const maxH = wrap.clientHeight - 32;
+    const ratio = Math.min(maxW / img.width, maxH / img.height, 1.2);
+    roiState.baseScale = ratio;
+    roiRecalcLayout();
+
+    // Load existing ROI points if available
+    roiState.points = [];
+    roiState.isClosed = false;
+    const sel = PatientManager.getSelectedImage();
+    if (sel && sel.image.roiPoints && sel.image.roiPoints.length > 0) {
+      // Convert image coordinates back to canvas coordinates
+      roiState.points = sel.image.roiPoints.map(p => ({
+        x: p.x * roiState.scale + roiState.offsetX,
+        y: p.y * roiState.scale + roiState.offsetY
+      }));
+      roiState.isClosed = true;
+      showToast('已加载历史 ROI 标注', 'info');
+    }
+
+    roiRedraw();
+    updateRoiButtons();
+    updateRoiHint();
+    updateZoomLabel();
+  };
+  img.onerror = function() {
+    if (placeholder) placeholder.innerHTML = '<span style=\"color:rgba(255,255,255,0.5)\">图像加载失败</span>';
+  };
+  img.src = image.path || image.src;
+}
+
+function roiRecalcLayout() {
+  const canvas = document.getElementById('roi-canvas');
+  if (!canvas || !roiState.image) return;
+  const wrap = canvas.parentElement;
+  const maxW = wrap.clientWidth - 32;
+  const maxH = wrap.clientHeight - 32;
+  const s = roiState.baseScale * roiState.userZoom;
+  roiState.scale = s;
+  roiState.imgWidth = Math.round(roiState.image.width * s);
+  roiState.imgHeight = Math.round(roiState.image.height * s);
+  roiState.offsetX = Math.round(Math.max(0, (maxW - roiState.imgWidth) / 2));
+  roiState.offsetY = Math.round(Math.max(0, (maxH - roiState.imgHeight) / 2));
+  roiState.canvasWidth = Math.max(roiState.imgWidth + roiState.offsetX * 2, 400);
+  roiState.canvasHeight = Math.max(roiState.imgHeight + roiState.offsetY * 2, 300);
+  canvas.width = roiState.canvasWidth;
+  canvas.height = roiState.canvasHeight;
+  canvas.style.display = 'block';
+  roiRedraw();
+}
+
+function roiZoom(delta) {
+  roiState.userZoom = Math.max(0.2, Math.min(3.0, roiState.userZoom + delta));
+  roiRecalcLayout();
+  updateZoomLabel();
+}
+
+function updateZoomLabel() {
+  const el = document.getElementById('roi-zoom-label');
+  if (el) el.textContent = Math.round(roiState.userZoom * 100) + '%';
+}
+
+function roiRedraw() {
+  const canvas = document.getElementById('roi-canvas');
+  if (!canvas || !roiState.image) return;
+  const ctx = canvas.getContext('2d');
+  const { offsetX, offsetY, imgWidth, imgHeight, points, isClosed } = roiState;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(roiState.image, offsetX, offsetY, imgWidth, imgHeight);
+
+  if (points.length < 2) {
+    // Draw rubber band preview from last point to mouse (only if inside image)
+    if (points.length === 1 && roiState.mouseX > 0 && roiIsInsideImage(roiState.mouseX, roiState.mouseY)) {
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      ctx.lineTo(roiState.mouseX, roiState.mouseY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // Still draw single point
+    if (points.length === 1) {
+      ctx.beginPath();
+      ctx.arc(points[0].x, points[0].y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#22c55e';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+    return;
+  }
+
+  // Draw completed polygon
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) {
+    ctx.lineTo(points[i].x, points[i].y);
+  }
+  if (isClosed) {
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+    ctx.fill();
+  } else {
+    // Rubber band from last point to mouse (only if inside image)
+    if (roiState.mouseX > 0 && roiIsInsideImage(roiState.mouseX, roiState.mouseY)) {
+      ctx.lineTo(roiState.mouseX, roiState.mouseY);
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+      ctx.setLineDash([6, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Redraw solid polygon
+      ctx.strokeStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+    }
+  }
+  ctx.stroke();
+
+  // Draw vertices
+  for (let i = 0; i < points.length; i++) {
+    const isFirst = i === 0;
+    ctx.beginPath();
+    ctx.arc(points[i].x, points[i].y, isFirst ? 5 : 4, 0, Math.PI * 2);
+    ctx.fillStyle = isFirst ? '#22c55e' : '#ef4444';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+}
+
+function roiHandleMouseMove(e) {
+  if (!roiState.image || roiState.isClosed) return;
+  const canvas = document.getElementById('roi-canvas');
+  const rect = canvas.getBoundingClientRect();
+  roiState.mouseX = e.clientX - rect.left;
+  roiState.mouseY = e.clientY - rect.top;
+  if (roiState.points.length > 0) roiRedraw();
+}
+
+function roiHandleMouseLeave() {
+  roiState.mouseX = -1;
+  roiState.mouseY = -1;
+  if (roiState.points.length > 0 && !roiState.isClosed) roiRedraw();
+}
+
+function roiCanvasToImage(canvasX, canvasY) {
+  return {
+    x: Math.round((canvasX - roiState.offsetX) / roiState.scale),
+    y: Math.round((canvasY - roiState.offsetY) / roiState.scale)
+  };
+}
+
+function roiIsInsideImage(canvasX, canvasY) {
+  return canvasX >= roiState.offsetX &&
+         canvasX <= roiState.offsetX + roiState.imgWidth &&
+         canvasY >= roiState.offsetY &&
+         canvasY <= roiState.offsetY + roiState.imgHeight;
+}
+
+function roiHandleCanvasClick(e) {
+  if (!roiState.image || roiState.isClosed) return;
+  const canvas = document.getElementById('roi-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  // Ignore clicks outside image bounds
+  if (!roiIsInsideImage(x, y)) return;
+
+  // Check if clicking near first point to close
+  if (roiState.points.length >= 3) {
+    const dx = x - roiState.points[0].x;
+    const dy = y - roiState.points[0].y;
+    if (Math.sqrt(dx * dx + dy * dy) < roiState.closeThreshold) {
+      roiState.isClosed = true;
+      roiRedraw();
+      updateRoiButtons();
+      updateRoiHint();
+      showToast('多边形已闭合', 'success');
+      return;
+    }
+  }
+
+  roiState.points.push({ x, y });
+  roiRedraw();
+  updateRoiButtons();
+  updateRoiHint();
+}
+
+function roiHandleContextMenu(e) {
+  e.preventDefault();
+  roiUndo();
+}
+
+function roiUndo() {
+  if (roiState.points.length === 0) return;
+  roiState.points.pop();
+  roiState.isClosed = false;
+  roiRedraw();
+  updateRoiButtons();
+  updateRoiHint();
+}
+
+function roiClear() {
+  roiState.points = [];
+  roiState.isClosed = false;
+  roiRedraw();
+  updateRoiButtons();
+  updateRoiHint();
+}
+
+function roiSmooth() {
+  if (roiState.points.length < 4) {
+    showToast('至少需要4个点才能平滑', 'error');
+    return;
+  }
+  const iters = parseInt(document.getElementById('roi-smooth-iters').value) || 2;
+  let pts = roiState.points.map(p => ({ x: p.x, y: p.y }));
+  for (let iter = 0; iter < iters; iter++) {
+    const smoothed = [];
+    smoothed.push(pts[0]);
+    for (let i = 1; i < pts.length - 1; i++) {
+      smoothed.push({
+        x: (pts[i - 1].x + pts[i].x + pts[i + 1].x) / 3,
+        y: (pts[i - 1].y + pts[i].y + pts[i + 1].y) / 3
+      });
+    }
+    smoothed.push(pts[pts.length - 1]);
+    pts = smoothed;
+  }
+  roiState.points = pts;
+  roiRedraw();
+  showToast('平滑已应用', 'success');
+}
+
+function updateRoiButtons() {
+  const hasPoints = roiState.points.length > 0;
+  const isClosed = roiState.isClosed;
+  document.getElementById('roi-btn-undo').disabled = !hasPoints || isClosed;
+  document.getElementById('roi-btn-smooth').disabled = roiState.points.length < 4;
+  document.getElementById('roi-btn-clear').disabled = !hasPoints;
+  document.getElementById('roi-btn-save').disabled = !isClosed;
+}
+
+function updateRoiHint() {
+  const hint = document.getElementById('roi-hint-text');
+  const count = document.getElementById('roi-point-count');
+  if (!hint || !count) return;
+  if (!roiState.image) {
+    hint.textContent = '从仪表盘选择图像并点击开始处理';
+    count.textContent = '';
+  } else if (roiState.isClosed) {
+    hint.textContent = 'ROI 已完成 — 点击保存并继续';
+    count.textContent = roiState.points.length + ' 个顶点';
+  } else {
+    hint.textContent = '左键添加顶点  |  靠近起点闭合  |  右键撤销';
+    count.textContent = roiState.points.length + ' 个顶点';
+  }
+}
+
+function saveRoiAndNext() {
+  if (!roiState.isClosed) {
+    showToast('请先闭合 ROI 多边形', 'error');
+    return;
+  }
+  const sel = PatientManager.getSelectedImage();
+  if (!sel) return;
+  const patient = PatientManager.getSelectedPatient();
+  // Save ROI points as image coordinates for reload
+  const roiImagePoints = roiState.points.map(p => roiCanvasToImage(p.x, p.y));
+  StorageAdapter.updateImage(patient.id, sel.check.id, sel.image.id, {
+    status: 'roi_done',
+    roiMaskPath: 'Dataset/EEC/EEC_test_dataset_label/' + sel.image.name.replace(/\.\w+$/, '') + '.png',
+    roiPoints: roiImagePoints
+  });
+  StorageAdapter.updatePatient(patient.id, { status: 'processing' });
+  StorageAdapter.reset();
+  showToast('ROI 已保存 — 进入交互式标注', 'success');
+  switchModule('labeling');
+}
+
+// Init canvas events
+(function initRoiCanvas() {
+  const canvas = document.getElementById('roi-canvas');
+  if (canvas) {
+    canvas.addEventListener('click', roiHandleCanvasClick);
+    canvas.addEventListener('contextmenu', roiHandleContextMenu);
+    canvas.addEventListener('mousemove', roiHandleMouseMove);
+    canvas.addEventListener('mouseleave', roiHandleMouseLeave);
+  }
+  window.addEventListener('resize', () => {
+    if (roiState.image && roiState._lastPath) {
+      roiInitCanvas({ path: roiState._lastPath });
+    }
+  });
+})();
+
+/* ============================================
+   Labeling Canvas — Interactive Sampling
+   ============================================ */
+const labelingState = {
+  image: null,
+  scale: 1,
+  userZoom: 1,
+  offsetX: 0,
+  offsetY: 0,
+  imgWidth: 0,
+  imgHeight: 0,
+  points: [],        // { x, y, r } — canvas coordinates
+  reverseRoi: false,
+  mouseX: -1,
+  mouseY: -1,
+  placingRadius: false,
+  panning: false,
+  panStartX: 0,
+  panStartY: 0,
+  panOrigX: 0,
+  panOrigY: 0,
+  _lastPath: null,
+};
+
+function labelingToggleReverse() {
+  labelingState.reverseRoi = document.getElementById('labeling-reverse-roi').checked;
+  showToast(labelingState.reverseRoi ? '反转 ROI 模式：采样正常组织' : '常规模式：采样病灶区域', 'info');
+}
+
+function labelingZoom(delta) {
+  labelingState.userZoom = Math.max(0.2, Math.min(3.0, labelingState.userZoom + delta));
+  labelingRecalcLayout();
+  const el = document.getElementById('labeling-zoom-label');
+  if (el) el.textContent = Math.round(labelingState.userZoom * 100) + '%';
+}
+
+function labelingRecalcLayout() {
+  if (!labelingState.image) return;
+  const canvas = document.getElementById('labeling-canvas');
+  const wrap = canvas.parentElement;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  canvas.width = w;
+  canvas.height = h;
+  const imgW = labelingState.image.naturalWidth;
+  const imgH = labelingState.image.naturalHeight;
+  const scale = Math.min(w / imgW, h / imgH) * 0.95 * labelingState.userZoom;
+  labelingState.scale = scale;
+  labelingState.imgWidth = Math.round(imgW * scale);
+  labelingState.imgHeight = Math.round(imgH * scale);
+  labelingState.offsetX = Math.round((w - labelingState.imgWidth) / 2);
+  labelingState.offsetY = Math.round((h - labelingState.imgHeight) / 2);
+}
+
+function labelingRedraw() {
+  const canvas = document.getElementById('labeling-canvas');
+  if (!canvas || !labelingState.image) return;
+  const ctx = canvas.getContext('2d');
+  const { offsetX, offsetY, imgWidth, imgHeight, points, phase } = labelingState;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(labelingState.image, offsetX, offsetY, imgWidth, imgHeight);
+
+  // Draw placed sampling points
+  points.forEach((p, i) => {
+    const isReverse = labelingState.reverseRoi;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = isReverse ? 'rgba(245, 158, 11, 0.25)' : 'rgba(34, 197, 94, 0.25)';
+    ctx.fill();
+    ctx.strokeStyle = isReverse ? '#f59e0b' : '#22c55e';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // Label
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px system-ui';
+    ctx.fillText((i + 1), p.x + p.r + 4, p.y + 4);
+  });
+
+  // Rubber band preview for placing radius
+  if (labelingState.placingRadius && labelingState.mouseX > 0) {
+    const last = points[points.length - 1];
+    const r = Math.sqrt((labelingState.mouseX - last.x) ** 2 + (labelingState.mouseY - last.y) ** 2);
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, r, 0, Math.PI * 2);
+    ctx.strokeStyle = labelingState.reverseRoi ? 'rgba(245, 158, 11, 0.6)' : 'rgba(34, 197, 94, 0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function labelingIsInsideImage(cx, cy) {
+  return cx >= labelingState.offsetX &&
+         cx <= labelingState.offsetX + labelingState.imgWidth &&
+         cy >= labelingState.offsetY &&
+         cy <= labelingState.offsetY + labelingState.imgHeight;
+}
+
+function labelingHandleCanvasClick(e) {
+  if (!labelingState.image) return;
+  const canvas = document.getElementById('labeling-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  // Ctrl+click or middle click: start panning
+  if (e.ctrlKey || e.button === 1) {
+    labelingState.panning = true;
+    labelingState.panStartX = x;
+    labelingState.panStartY = y;
+    labelingState.panOrigX = labelingState.offsetX;
+    labelingState.panOrigY = labelingState.offsetY;
+    labelingState.placingRadius = false;
+    return;
+  }
+
+  if (!labelingIsInsideImage(x, y)) return;
+
+  if (labelingState.placingRadius) {
+    // Second click: set radius
+    const last = labelingState.points[labelingState.points.length - 1];
+    const r = Math.sqrt((x - last.x) ** 2 + (y - last.y) ** 2);
+    if (r < 5) return; // too small
+    labelingState.points[labelingState.points.length - 1].r = Math.round(r);
+    labelingState.placingRadius = false;
+    labelingRedraw();
+    updateLabelingButtons();
+    updateLabelingHint();
+  } else {
+    // First click: place center
+    labelingState.points.push({ x, y, r: 20, phase: labelingState.phase });
+    labelingState.placingRadius = true;
+    labelingRedraw();
+    updateLabelingButtons();
+    updateLabelingHint();
+  }
+}
+
+function labelingHandleContextMenu(e) {
+  e.preventDefault();
+  if (labelingState.placingRadius) {
+    labelingState.placingRadius = false;
+    labelingState.points.pop();
+    labelingRedraw();
+    updateLabelingButtons();
+    updateLabelingHint();
+  } else {
+    labelingUndo();
+  }
+}
+
+function labelingHandleMouseMove(e) {
+  const canvas = document.getElementById('labeling-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  if (labelingState.panning) {
+    labelingState.offsetX = labelingState.panOrigX + (x - labelingState.panStartX);
+    labelingState.offsetY = labelingState.panOrigY + (y - labelingState.panStartY);
+    labelingRedraw();
+    return;
+  }
+
+  labelingState.mouseX = x;
+  labelingState.mouseY = y;
+  if (labelingState.placingRadius) labelingRedraw();
+}
+
+function labelingHandleMouseLeave() {
+  labelingState.mouseX = -1;
+  labelingState.mouseY = -1;
+  labelingState.panning = false;
+  if (labelingState.placingRadius) labelingRedraw();
+}
+
+function labelingHandleMouseUp() {
+  labelingState.panning = false;
+}
+
+function labelingUndo() {
+  if (labelingState.placingRadius) {
+    labelingState.placingRadius = false;
+  }
+  if (labelingState.points.length > 0) {
+    labelingState.points.pop();
+  }
+  labelingRedraw();
+  updateLabelingButtons();
+  updateLabelingHint();
+}
+
+function labelingClear() {
+  labelingState.points = [];
+  labelingState.placingRadius = false;
+  labelingRedraw();
+  updateLabelingButtons();
+  updateLabelingHint();
+}
+
+function labelingFinishPhase() {
+  if (labelingState.points.length < 2) {
+    showToast('请至少放置 2 个采样点', 'error');
+    return;
+  }
+  const sel = PatientManager.getSelectedImage();
+  if (!sel) return;
+  const patient = PatientManager.getSelectedPatient();
+  // Save sampling points as image coordinates
+  const scale = labelingState.scale;
+  const sampleImagePoints = labelingState.points.map(p => ({
+    x: Math.round((p.x - labelingState.offsetX) / scale),
+    y: Math.round((p.y - labelingState.offsetY) / scale),
+    r: Math.round(p.r / scale)
+  }));
+  StorageAdapter.updateImage(patient.id, sel.check.id, sel.image.id, {
+    status: 'sampled',
+    samplePklPath: 'EEC_save_sample_13.0/' + sel.image.name.replace(/\.\w+$/, '') + '/',
+    samplePoints: sampleImagePoints,
+    reverseRoi: labelingState.reverseRoi
+  });
+  StorageAdapter.updatePatient(patient.id, { status: 'processing' });
+  StorageAdapter.reset();
+  showToast('采样已保存 — 进入数据集生成', 'success');
+  switchModule('dataset');
+}
+
+function updateLabelingButtons() {
+  const hasPoints = labelingState.points.length > 0;
+  document.getElementById('labeling-btn-undo').disabled = !hasPoints;
+  document.getElementById('labeling-btn-clear').disabled = !hasPoints;
+  document.getElementById('labeling-btn-finish').disabled = labelingState.points.length < 2;
+}
+
+function updateLabelingHint() {
+  const el = document.getElementById('labeling-hint-text');
+  const countEl = document.getElementById('labeling-point-count');
+  if (!el) return;
+  if (labelingState.placingRadius) {
+    el.textContent = '移动鼠标调整半径，点击确认';
+  } else {
+    el.textContent = labelingState.reverseRoi
+      ? '反转ROI模式：在正常组织区域放置采样圈，右键撤销'
+      : '在病灶区域放置采样圈，右键撤销，至少放置 2 个';
+  }
+  if (countEl) countEl.textContent = labelingState.points.length + ' 个采样点';
+}
+
+function labelingLoadImage(path) {
+  const img = new Image();
+  img.onload = () => {
+    labelingState.image = img;
+    labelingState.points = [];
+    labelingState.placingRadius = false;
+    labelingState.userZoom = 1;
+    labelingState._lastPath = path;
+    document.getElementById('labeling-canvas-placeholder').style.display = 'none';
+    labelingRecalcLayout();
+
+    // Load existing sampling points if available
+    const sel = PatientManager.getSelectedImage();
+    if (sel && sel.image.samplePoints && sel.image.samplePoints.length > 0) {
+      const scale = labelingState.scale;
+      labelingState.points = sel.image.samplePoints.map(p => ({
+        x: p.x * scale + labelingState.offsetX,
+        y: p.y * scale + labelingState.offsetY,
+        r: p.r * scale
+      }));
+      labelingState.reverseRoi = sel.image.reverseRoi || false;
+      document.getElementById('labeling-reverse-roi').checked = labelingState.reverseRoi;
+      showToast('已加载历史采样数据', 'info');
+    }
+
+    labelingRedraw();
+    updateLabelingButtons();
+    updateLabelingHint();
+  };
+  img.src = path;
+}
+
+// Init labeling canvas
+(function initLabelingCanvas() {
+  const canvas = document.getElementById('labeling-canvas');
+  if (canvas) {
+    canvas.addEventListener('click', labelingHandleCanvasClick);
+    canvas.addEventListener('contextmenu', labelingHandleContextMenu);
+    canvas.addEventListener('mousemove', labelingHandleMouseMove);
+    canvas.addEventListener('mouseleave', labelingHandleMouseLeave);
+    canvas.addEventListener('mouseup', labelingHandleMouseUp);
+  }
+  window.addEventListener('resize', () => {
+    if (labelingState.image && labelingState._lastPath) {
+      labelingRecalcLayout();
+      labelingRedraw();
+    }
+  });
+})();
+
 function switchModule(moduleName) {
   // Update sidebar active state
   document.querySelectorAll('.sidebar-item').forEach(item => {
@@ -2447,8 +3222,17 @@ function switchModule(moduleName) {
   const targetPanel = document.getElementById('module-' + moduleName);
   if (targetPanel) {
     targetPanel.classList.add('active');
-    // Scroll to top of content area
     document.getElementById('content-area').scrollTop = 0;
+  }
+
+  // Load selected image into workspace modules
+  if (moduleName === 'roi' || moduleName === 'labeling') {
+    const sel = PatientManager.getSelectedImage();
+    if (sel && sel.image.path) {
+      const imgPath = sel.image.path;
+      if (moduleName === 'roi') roiInitCanvas({ path: imgPath });
+      if (moduleName === 'labeling') labelingLoadImage(imgPath);
+    }
   }
 
   // Update hash
@@ -2461,9 +3245,9 @@ function switchModule(moduleName) {
 }
 
 /* ============================================
-   Settings Panel via Header Button
+   设置 Panel via Header Button
    ============================================ */
-function openSettingsPanel() {
+function open设置Panel() {
   openModal('settings-modal');
 }
 
@@ -2484,13 +3268,19 @@ window.addEventListener('hashchange', handleHashChange);
 (function initModule() {
   const hash = location.hash.replace('#', '');
   const validModules = ['dashboard', 'roi', 'labeling', 'dataset', 'training', 'prediction'];
-  if (validModules.includes(hash)) {
+  // Always start on dashboard unless in workflow mode with a selected patient
+  if (hash === 'roi' || hash === 'labeling' || hash === 'dataset' || hash === 'training' || hash === 'prediction') {
+    // Only restore workflow module if coming from a real workflow session
+    const saved = (() => { try { return localStorage.getItem('mediscan-active-module'); } catch(e) { return null; } })();
+    if (saved && validModules.includes(saved) && saved !== 'dashboard') {
+      switchModule(saved);
+    } else {
+      switchModule('dashboard');
+    }
+  } else if (validModules.includes(hash)) {
     switchModule(hash);
   } else {
-    const saved = (() => { try { return localStorage.getItem('mediscan-active-module'); } catch(e) { return null; } })();
-    if (saved && validModules.includes(saved)) {
-      switchModule(saved);
-    }
+    switchModule('dashboard');
   }
 })();
 
@@ -3109,7 +3899,24 @@ const PatientManager = {
     }
     StorageAdapter.reset();
     this.exitWorkflow();
-  }
+  },
+
+  updateImageStatus(imageId, status) {
+    const patient = this.getSelectedPatient();
+    if (!patient) return;
+    for (const check of patient.checks) {
+      const img = check.images.find(i => i.id === imageId);
+      if (img) {
+        StorageAdapter.updateImage(patient.id, check.id, imageId, { status });
+        if (patient.status === 'pending') {
+          StorageAdapter.updatePatient(patient.id, { status: 'processing' });
+        }
+        break;
+      }
+    }
+    StorageAdapter.reset();
+    this._selectedPatientId = patient.id;
+  },
 };
 
 /* ============================================
@@ -3419,18 +4226,9 @@ function updateWorkflowBackBtn() {
 }
 
 function loadImageIntoWorkflow(image) {
-  // Load the image into the ROI module preview
-  const roiPlaceholder = document.getElementById('roi-placeholder');
-  const roiPreview = document.getElementById('roi-image-preview');
-  const roiDesc = document.getElementById('roi-section-desc');
-  if (roiPlaceholder && roiPreview && image.path) {
-    roiPlaceholder.style.display = 'none';
-    roiPreview.src = image.path;
-    roiPreview.style.display = 'block';
-    roiPreview.alt = image.name;
-  }
-  if (roiDesc) {
-    roiDesc.textContent = 'Processing: ' + image.name + ' — Draw ROI around the lesion area';
+  roiState._lastPath = image.path;
+  if (image.path) {
+    roiInitCanvas(image);
   }
 }
 
