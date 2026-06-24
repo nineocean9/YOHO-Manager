@@ -1,0 +1,24 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "tauri-dashboard",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite"],
+      "port": 1420,
+      "autoPort": true
+    },
+    {
+      "name": "medical-ui",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["live-server", "D:/Downloads/test", "--port=1520", "--no-browser"],
+      "port": 1520
+    },
+    {
+      "name": "mediscan-homepage",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["live-server", "C:/Users/chenyuhao/Desktop/大学/课程/物联网/考试/renderer", "--port=1530", "--no-browser"],
+      "port": 1530
+    }
+  ]
+}

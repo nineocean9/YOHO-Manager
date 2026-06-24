@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx serve *)",
+      "Bash(python3 skills/ui-ux-pro-max/scripts/search.py \"medical imaging desktop healthcare\" --design-system -p \"MediView\")",
+      "Read(//c/Users/chenyuhao/.agents/skills/ui-ux-pro-max/scripts/**)",
+      "Read(//c/Users/chenyuhao/.agents/skills/ui-ux-pro-max/data/**)",
+      "Bash(python3 \"C:/Users/chenyuhao/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"medical imaging healthcare desktop\" --design-system -p \"MediView\")",
+      "Bash(npm install *)",
+      "Bash(set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/)",
+      "Bash(set NODE_TLS_REJECT_UNAUTHORIZED=0)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}

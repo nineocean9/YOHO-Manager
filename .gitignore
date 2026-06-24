@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+release/
+out/
+*.exe
+*.dmg
+*.AppImage
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Electron
+# (project-specific)
+
+# Python / YOHO
+*.pth
+*.pkl
+*.pth.tar
+logs/
+Medical_Datasets/
+EEC_save_sample_13.0/
+EEC/
+Dataset/
+img_out/
+results/
+seg/
+__pycache__/
+*.pyc
