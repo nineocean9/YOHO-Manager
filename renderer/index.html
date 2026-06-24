@@ -335,7 +335,7 @@ h4 { font-size: 1.125rem; }
 }
 
 .sidebar-nav {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: var(--space-1);
   padding: 0 var(--space-3);
@@ -437,6 +437,473 @@ h4 { font-size: 1.125rem; }
 }
 .module-panel.active {
   display: block;
+}
+
+/* ============================================
+   Patient List (in Sidebar)
+   ============================================ */
+.sidebar-section {
+  padding: 0 var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+}
+
+.sidebar-section-title {
+  font-family: var(--font-heading);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted-foreground);
+}
+
+.sidebar-add-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted-foreground);
+  transition: all var(--transition-fast);
+}
+.sidebar-add-btn:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--color-border-light);
+  margin: var(--space-2) var(--space-3);
+}
+
+.patient-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.patient-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--color-foreground-soft);
+  transition: all var(--transition-fast);
+  text-align: left;
+  width: 100%;
+  min-height: 40px;
+  position: relative;
+}
+.patient-item:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+.patient-item.active {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+.patient-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: var(--color-primary);
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+
+.patient-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.patient-status-dot.pending { background: var(--color-warning); }
+.patient-status-dot.processing { background: var(--color-primary); }
+.patient-status-dot.completed { background: var(--color-accent); }
+
+.patient-item-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.patient-item-count {
+  font-size: 0.6875rem;
+  color: var(--color-muted-foreground);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Dashboard — Patient Detail
+   ============================================ */
+.patient-banner {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-card);
+}
+
+.patient-banner-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.patient-banner-name {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+
+.patient-banner-meta {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  color: var(--color-muted-foreground);
+}
+
+.patient-banner-meta span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.patient-banner-history {
+  font-size: 0.8125rem;
+  color: var(--color-muted-foreground);
+  margin-top: var(--space-2);
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.patient-banner-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+/* ============================================
+   Dashboard — Image Grid
+   ============================================ */
+.image-grid-section {
+  margin-bottom: var(--space-6);
+}
+
+.image-grid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.image-grid-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+.image-card {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-card);
+}
+.image-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+.image-card.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.image-card-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.image-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.image-card-thumb-placeholder {
+  color: var(--color-muted-foreground);
+  opacity: 0.4;
+}
+
+.image-card-info {
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.image-card-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.image-card-status {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.image-card-status.uploaded { background: var(--color-warning-light); color: var(--color-warning); }
+.image-card-status.roi_done { background: var(--color-primary-light); color: var(--color-primary); }
+.image-card-status.sampled { background: var(--color-secondary-light); color: var(--color-foreground-soft); }
+.image-card-status.predicted { background: var(--color-success-light); color: var(--color-success); }
+
+/* ============================================
+   Dashboard — Before/After Comparison
+   ============================================ */
+.compare-section {
+  margin-bottom: var(--space-6);
+}
+
+.compare-title {
+  font-family: var(--font-heading);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin-bottom: var(--space-3);
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.compare-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+.compare-card-header {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-muted-foreground);
+  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.compare-card-preview {
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  aspect-ratio: 4/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted-foreground);
+  overflow: hidden;
+}
+.compare-card-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.compare-card-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-muted-foreground);
+  opacity: 0.5;
+  font-size: 0.8125rem;
+}
+
+/* ============================================
+   Dashboard — Report Summary
+   ============================================ */
+.report-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  box-shadow: var(--shadow-card);
+}
+
+.report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.report-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.report-stats {
+  display: flex;
+  gap: var(--space-6);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.report-stat {
+  text-align: center;
+}
+.report-stat-value {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.report-stat-label {
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+.report-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-muted-foreground);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.report-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border-light);
+  color: var(--color-foreground);
+}
+.report-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================
+   Workflow Mode
+   ============================================ */
+.workflow-back-btn {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--color-muted-foreground);
+  transition: all var(--transition-fast);
+}
+.workflow-back-btn:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.workflow-back-btn.visible {
+  display: inline-flex;
+}
+
+.workflow-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-6);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.workflow-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-muted-foreground);
+  white-space: nowrap;
+}
+.workflow-step.current {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.workflow-step.done {
+  color: var(--color-success);
+}
+.workflow-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.workflow-step-arrow {
+  color: var(--color-border);
+  font-size: 0.75rem;
+  flex-shrink: 0;
 }
 
 /* ============================================
@@ -1024,6 +1491,30 @@ h4 { font-size: 1.125rem; }
 .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
 .toggle input:focus-visible + .toggle-slider { box-shadow: var(--shadow-focus); }
 
+/* Text Input */
+.input {
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-foreground);
+  background: var(--color-surface);
+  min-height: 40px;
+  width: 100%;
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
+}
+.input::placeholder {
+  color: var(--color-muted-foreground);
+  opacity: 0.6;
+}
+.input:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-color: var(--color-primary);
+}
+
 /* Select */
 .select-input {
   padding: var(--space-2) var(--space-4);
@@ -1042,6 +1533,38 @@ h4 { font-size: 1.125rem; }
   box-shadow: var(--shadow-focus);
   border-color: var(--color-primary);
 }
+
+.form-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-foreground-soft);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.badge-pending { background: var(--color-warning-light); color: var(--color-warning); }
+.badge-processing { background: var(--color-primary-light); color: var(--color-primary); }
+.badge-completed { background: var(--color-success-light); color: var(--color-success); }
 
 /* ============================================
    Toast Notification
@@ -1244,6 +1767,10 @@ h4 { font-size: 1.125rem; }
       </div>
       MediScan AI
     </a>
+    <button class="workflow-back-btn" id="workflow-back-btn" onclick="exitWorkflow()" aria-label="Back to Dashboard">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Dashboard
+    </button>
     <nav class="nav" role="navigation" aria-label="Main navigation">
       <button class="btn btn-outline btn-sm" onclick="openSettingsPanel()" aria-label="Open settings">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1269,7 +1796,23 @@ h4 { font-size: 1.125rem; }
 
   <!-- Sidebar -->
   <aside class="sidebar" role="navigation" aria-label="Module navigation">
-    <nav class="sidebar-nav">
+    <!-- Patient List Section -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-header">
+        <span class="sidebar-section-title">Patients</span>
+        <button class="sidebar-add-btn" onclick="openPatientModal()" aria-label="Add new patient">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      <div class="patient-list" id="patient-list">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Workflow Modules (hidden in dashboard mode) -->
+    <nav class="sidebar-nav" id="sidebar-nav">
       <button class="sidebar-item active" data-module="dashboard" onclick="switchModule('dashboard')">
         <span class="sidebar-item-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -1347,43 +1890,54 @@ h4 { font-size: 1.125rem; }
 
     <!-- Dashboard Module -->
     <div class="module-panel active" id="module-dashboard">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="container">
+      <div class="container">
+        <!-- Patient Banner -->
+        <div class="patient-banner hidden" id="patient-banner">
+          <div class="patient-banner-header">
+            <span class="patient-banner-name" id="patient-banner-name"></span>
+            <span class="badge" id="patient-banner-status"></span>
+          </div>
+          <div class="patient-banner-meta">
+            <span id="patient-banner-meta"></span>
+          </div>
+          <div class="patient-banner-history" id="patient-banner-history"></div>
+          <div class="patient-banner-actions">
+            <button class="btn btn-ghost btn-sm" onclick="editPatient()">Edit Patient</button>
+            <button class="btn btn-outline btn-sm" onclick="openPatientModal()">Add Check</button>
+          </div>
+        </div>
+
+        <!-- No Patient Selected / Welcome -->
+        <div class="hero" id="dashboard-welcome">
           <div class="hero-badge">
             <span class="status-dot ready" aria-hidden="true"></span>
             <span id="app-version-badge">AI-Powered Medical Imaging</span>
           </div>
-          <h1 class="hero-title" id="hero-title">
+          <h1 class="hero-title">
             Intelligent Medical Image
             <span class="highlight">Recognition & Annotation</span>
           </h1>
           <p class="hero-desc">
-            Upload, annotate, label, and train AI models on medical images with precision.
-            Built for radiologists, researchers, and healthcare professionals.
+            Select a patient from the sidebar to view their images and start processing.
           </p>
           <div class="hero-actions">
-            <button class="btn btn-primary btn-lg" onclick="switchModule('upload')">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-              Upload Image
-            </button>
-            <button class="btn btn-outline btn-lg" onclick="switchModule('roi')">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>
-              Start Annotation
+            <button class="btn btn-primary btn-lg" onclick="openPatientModal()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Patient
             </button>
           </div>
-
-          <div class="stats-bar" aria-label="Platform statistics">
+          <div class="stats-bar" aria-label="Platform statistics" style="margin-top:var(--space-6)">
             <div class="stat-item">
-              <div class="stat-value">50K+</div>
-              <div class="stat-label">Images Processed</div>
+              <div class="stat-value" id="stat-total-patients">0</div>
+              <div class="stat-label">Total Patients</div>
             </div>
             <div class="stat-item">
-              <div class="stat-value">99.7%</div>
-              <div class="stat-label">Model Accuracy</div>
+              <div class="stat-value" id="stat-total-images">0</div>
+              <div class="stat-label">Images</div>
             </div>
             <div class="stat-item">
-              <div class="stat-value">12+</div>
-              <div class="stat-label">Modality Support</div>
+              <div class="stat-value" id="stat-completed">0</div>
+              <div class="stat-label">Completed</div>
             </div>
             <div class="stat-item">
               <div class="stat-value">HIPAA</div>
@@ -1391,45 +1945,76 @@ h4 { font-size: 1.125rem; }
             </div>
           </div>
         </div>
-      </section>
 
-      <section class="section">
-        <div class="container">
-          <div class="section-header">
-            <h2>Quick Actions</h2>
-            <p>Jump to common tasks in your medical AI workflow</p>
+        <!-- Image Grid for selected patient -->
+        <div class="image-grid-section hidden" id="image-grid-section">
+          <div class="image-grid-header">
+            <span class="image-grid-title">Images</span>
+            <button class="btn btn-outline btn-sm" onclick="addImagesToPatient()">Add Images</button>
           </div>
-          <div class="dashboard-quick-grid">
-            <div class="quick-card" onclick="switchModule('roi')" tabindex="0" role="button" aria-label="Open ROI Annotation">
-              <div class="quick-card-header">
-                <div class="card-icon cyan">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>
-                </div>
-                <span class="quick-card-title">ROI Annotation</span>
-              </div>
-              <p class="quick-card-desc">Draw and refine regions of interest on endoscopic images with precision polygon tools.</p>
-            </div>
-            <div class="quick-card" onclick="switchModule('training')" tabindex="0" role="button" aria-label="Open Model Training">
-              <div class="quick-card-header">
-                <div class="card-icon amber">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                </div>
-                <span class="quick-card-title">Last Training</span>
-              </div>
-              <p class="quick-card-desc">EEC-UNet-ResNet34 — Epoch 30/30 — Best Accuracy: 98.7% — Completed 2 hours ago</p>
-            </div>
-            <div class="quick-card" onclick="switchModule('prediction')" tabindex="0" role="button" aria-label="Open Prediction">
-              <div class="quick-card-header">
-                <div class="card-icon green">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8.5A4.5 4.5 0 0 1 8.5 12"/><polyline points="8.5 12 12 8.5 15.5 12"/></svg>
-                </div>
-                <span class="quick-card-title">Quick Predict</span>
-              </div>
-              <p class="quick-card-desc">Run inference on new images with the latest trained model. View segmentation results instantly.</p>
-            </div>
+          <div class="image-grid" id="image-grid">
+            <!-- Dynamically populated -->
           </div>
         </div>
-      </section>
+
+        <!-- Before/After Comparison -->
+        <div class="compare-section hidden" id="compare-section">
+          <div class="compare-title">Selected Image Preview</div>
+          <div class="compare-grid">
+            <div class="compare-card">
+              <div class="compare-card-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Original
+              </div>
+              <div class="compare-card-preview" id="compare-original">
+                <div class="compare-card-placeholder">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span>Select an image</span>
+                </div>
+              </div>
+            </div>
+            <div class="compare-card">
+              <div class="compare-card-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8.5A4.5 4.5 0 0 1 8.5 12"/><polyline points="8.5 12 12 8.5 15.5 12"/></svg>
+                Prediction Overlay
+              </div>
+              <div class="compare-card-preview" id="compare-prediction">
+                <div class="compare-card-placeholder">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8.5A4.5 4.5 0 0 1 8.5 12"/></svg>
+                  <span>Predict to see result</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-4); display: flex; gap: var(--space-3);">
+            <button class="btn btn-primary" id="btn-start-workflow" onclick="startWorkflow()" disabled>
+              Start Processing
+            </button>
+            <span style="font-size:0.8125rem;color:var(--color-muted-foreground);align-self:center" id="selected-image-label">No image selected</span>
+          </div>
+        </div>
+
+        <!-- Report Summary -->
+        <div class="report-section hidden" id="report-section">
+          <div class="report-header">
+            <span class="report-title">Patient Report</span>
+            <div style="display:flex;gap:var(--space-2)">
+              <button class="btn btn-outline btn-sm" onclick="generateReport()">Generate Report</button>
+              <button class="btn btn-ghost btn-sm" onclick="exportReport()">Export</button>
+            </div>
+          </div>
+          <div class="report-stats" id="report-stats">
+          </div>
+          <div style="overflow-x:auto">
+            <table class="report-table" id="report-table">
+              <thead>
+                <tr><th>Image</th><th>Status</th><th>Lesion %</th><th>Confidence</th><th>Reviewed</th></tr>
+              </thead>
+              <tbody id="report-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Upload Module -->
@@ -1781,6 +2366,59 @@ h4 { font-size: 1.125rem; }
   </div>
 </div>
 
+<!-- Patient Modal -->
+<div class="modal-overlay hidden" id="patient-modal" role="dialog" aria-modal="true" aria-labelledby="patient-modal-title">
+  <div class="modal" style="max-width:520px">
+    <h3 class="modal-title" id="patient-modal-title">New Patient</h3>
+    <p class="modal-desc">Create a patient record to begin the diagnostic workflow</p>
+    <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label" for="patient-name">Name *</label>
+          <input class="input" type="text" id="patient-name" placeholder="Full name" required>
+        </div>
+        <div class="form-group" style="width:100px">
+          <label class="form-label" for="patient-gender">Gender</label>
+          <select class="select-input" id="patient-gender">
+            <option>M</option>
+            <option>F</option>
+          </select>
+        </div>
+        <div class="form-group" style="width:80px">
+          <label class="form-label" for="patient-age">Age</label>
+          <input class="input" type="number" id="patient-age" placeholder="Age" min="0" max="120">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label" for="patient-admission">Admission ID</label>
+          <input class="input" type="text" id="patient-admission" placeholder="Hospital admission number">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label" for="patient-scope">Scope Type</label>
+          <select class="select-input" id="patient-scope">
+            <option>Gastroscopy</option>
+            <option>Colonoscopy</option>
+            <option>Bronchoscopy</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="patient-doctor">Operating Doctor</label>
+        <input class="input" type="text" id="patient-doctor" placeholder="Doctor name">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="patient-history">Medical History</label>
+        <textarea class="input" id="patient-history" rows="3" placeholder="Relevant medical history, symptoms, findings..." style="resize:vertical;width:100%;font-family:var(--font-body)"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('patient-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePatient()">Save Patient</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Container -->
 <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
@@ -1867,6 +2505,22 @@ window.addEventListener('hashchange', handleHashChange);
    ============================================ */
 if (isElectron) {
   electronAPI.on('files-opened', (filePaths) => {
+    const patient = PatientManager.getSelectedPatient();
+    if (patient) {
+      // Add to current patient
+      const check = patient.checks[patient.checks.length - 1];
+      if (check) {
+        const fileData = filePaths.map(fp => ({ name: fp.split(/[\\/]/).pop(), path: fp }));
+        StorageAdapter.addImages(patient.id, check.id, fileData);
+        StorageAdapter.reset();
+        PatientManager._selectedPatientId = patient.id;
+        updatePatientStatusAfterAdd(patient.id);
+        renderDashboard();
+        showToast(`${filePaths.length} image(s) added to ${patient.name}`, 'success');
+        return;
+      }
+    }
+    // Fallback: old upload behavior
     const names = filePaths.map(p => p.split(/[\\/]/).pop()).join(', ');
     document.getElementById('upload-status').textContent =
       `${filePaths.length} file(s) opened: ${names}`;
@@ -2170,6 +2824,21 @@ function runPrediction() {
     predictBtn.textContent = 'Predict';
     predictBtn.style.opacity = '1';
     showToast(`Prediction: ${selected} (${conf}% confidence)`, 'success');
+
+    // If in workflow mode, complete and return to dashboard
+    if (PatientManager.isWorkflowMode) {
+      const sel = PatientManager.getSelectedImage();
+      if (sel) {
+        PatientManager.completePrediction(sel.image.id, {
+          maskPath: 'results/' + sel.image.name.replace('.png', '_mask.png'),
+          overlayPath: 'results/' + sel.image.name.replace('.png', '_overlay.png'),
+          lesionArea: (Math.random() * 15 + 3).toFixed(1),
+          confidence: conf,
+          reviewed: false
+        });
+        showToast('Prediction complete — returning to Dashboard', 'success');
+      }
+    }
   }, 1500);
 }
 
@@ -2182,6 +2851,609 @@ function generateDataset() {
     showToast('Dataset exported as COCO JSON (1,248 images, 8 classes)', 'success');
   }, 2000);
 }
+
+/* ============================================
+   PatientManager — Data Layer
+   ============================================ */
+const StorageAdapter = {
+  _key: 'yoho-patient-db',
+  _data: null,
+
+  _load() {
+    if (this._data === null) {
+      try {
+        const raw = localStorage.getItem(this._key);
+        this._data = raw ? JSON.parse(raw) : { patients: [] };
+      } catch (e) {
+        this._data = { patients: [] };
+      }
+    }
+    return this._data;
+  },
+
+  _save() {
+    try { localStorage.setItem(this._key, JSON.stringify(this._data)); } catch (e) {}
+  },
+
+  getPatients() {
+    return this._load().patients;
+  },
+
+  getPatient(id) {
+    return this._load().patients.find(p => p.id === id) || null;
+  },
+
+  addPatient(data) {
+    const db = this._load();
+    const patient = {
+      id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      name: data.name,
+      gender: data.gender || 'M',
+      age: data.age || '',
+      admissionId: data.admissionId || '',
+      history: data.history || '',
+      status: 'pending',
+      createdAt: new Date().toISOString().split('T')[0],
+      checks: [{
+        id: 'c_' + Date.now(),
+        type: data.scopeType || 'Gastroscopy',
+        date: new Date().toISOString().split('T')[0],
+        doctor: data.doctor || '',
+        images: []
+      }]
+    };
+    db.patients.push(patient);
+    this._save();
+    return patient;
+  },
+
+  updatePatient(id, data) {
+    const db = this._load();
+    const idx = db.patients.findIndex(p => p.id === id);
+    if (idx === -1) return null;
+    Object.assign(db.patients[idx], data);
+    this._save();
+    return db.patients[idx];
+  },
+
+  deletePatient(id) {
+    const db = this._load();
+    db.patients = db.patients.filter(p => p.id !== id);
+    this._save();
+  },
+
+  addImages(patientId, checkId, imageFiles) {
+    const db = this._load();
+    const patient = db.patients.find(p => p.id === patientId);
+    if (!patient) return;
+    const check = patient.checks.find(c => c.id === checkId);
+    if (!check) return;
+    imageFiles.forEach(file => {
+      check.images.push({
+        id: 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        name: file.name || file,
+        path: file.path || file,
+        status: 'uploaded',
+        roiMaskPath: null,
+        samplePklPath: null,
+        result: null
+      });
+    });
+    this._save();
+  },
+
+  updateImage(patientId, checkId, imageId, data) {
+    const db = this._load();
+    const patient = db.patients.find(p => p.id === patientId);
+    if (!patient) return;
+    const check = patient.checks.find(c => c.id === checkId);
+    if (!check) return;
+    const image = check.images.find(i => i.id === imageId);
+    if (!image) return;
+    Object.assign(image, data);
+    this._save();
+  },
+
+  reset() {
+    this._data = null;
+  }
+};
+
+const PatientManager = {
+  _selectedPatientId: null,
+  _selectedImageId: null,
+  _workflowMode: false,
+
+  get selectedPatientId() { return this._selectedPatientId; },
+  get selectedImageId() { return this._selectedImageId; },
+  get isWorkflowMode() { return this._workflowMode; },
+
+  getPatients() { return StorageAdapter.getPatients(); },
+  getPatient(id) { return StorageAdapter.getPatient(id); },
+  getSelectedPatient() {
+    return this._selectedPatientId ? StorageAdapter.getPatient(this._selectedPatientId) : null;
+  },
+  getSelectedImage() {
+    const patient = this.getSelectedPatient();
+    if (!patient) return null;
+    for (const check of patient.checks) {
+      const img = check.images.find(i => i.id === this._selectedImageId);
+      if (img) return { image: img, check: check };
+    }
+    return null;
+  },
+
+  selectPatient(id) {
+    this._selectedPatientId = id;
+    this._selectedImageId = null;
+    this._workflowMode = false;
+    renderPatientList();
+    renderDashboard();
+    setWorkflowMode(false);
+    switchModule('dashboard');
+    updateWorkflowBackBtn();
+  },
+
+  selectImage(imageId) {
+    this._selectedImageId = imageId;
+    renderDashboard();
+  },
+
+  startWorkflow() {
+    if (!this._selectedImageId) return;
+    this._workflowMode = true;
+    setWorkflowMode(true);
+    updateWorkflowBackBtn();
+    // Switch to the appropriate module based on image status
+    const sel = this.getSelectedImage();
+    if (!sel) return;
+    const status = sel.image.status;
+    if (status === 'uploaded') switchModule('roi');
+    else if (status === 'roi_done') switchModule('labeling');
+    else if (status === 'sampled') switchModule('prediction');
+    else switchModule('roi');
+  },
+
+  exitWorkflow() {
+    this._workflowMode = false;
+    this._selectedImageId = null;
+    setWorkflowMode(false);
+    updateWorkflowBackBtn();
+    renderDashboard();
+    switchModule('dashboard');
+  },
+
+  completePrediction(imageId, result) {
+    const patient = this.getSelectedPatient();
+    if (!patient) return;
+    for (const check of patient.checks) {
+      const img = check.images.find(i => i.id === imageId);
+      if (img) {
+        StorageAdapter.updateImage(patient.id, check.id, imageId, {
+          status: 'predicted',
+          result: result
+        });
+        // Update patient status
+        const allDone = check.images.every(i => i.status === 'predicted');
+        if (allDone) {
+          StorageAdapter.updatePatient(patient.id, { status: 'completed' });
+        } else {
+          StorageAdapter.updatePatient(patient.id, { status: 'processing' });
+        }
+        break;
+      }
+    }
+    StorageAdapter.reset();
+    this.exitWorkflow();
+  }
+};
+
+/* ============================================
+   Patient List Rendering
+   ============================================ */
+function renderPatientList() {
+  const list = document.getElementById('patient-list');
+  if (!list) return;
+  const patients = PatientManager.getPatients();
+  const selectedId = PatientManager.selectedPatientId;
+
+  if (patients.length === 0) {
+    list.innerHTML = '<div style="padding:var(--space-3);font-size:0.75rem;color:var(--color-muted-foreground);text-align:center">No patients yet</div>';
+    return;
+  }
+
+  list.innerHTML = patients.map(p => {
+    const active = p.id === selectedId ? ' active' : '';
+    const dotClass = p.status;
+    const imageCount = p.checks.reduce((sum, c) => sum + c.images.length, 0);
+    return `<button class="patient-item${active}" onclick="PatientManager.selectPatient('${p.id}')" data-patient-id="${p.id}">
+      <span class="patient-status-dot ${dotClass}"></span>
+      <span class="patient-item-name">${escHtml(p.name)}</span>
+      <span class="patient-item-count">${imageCount}</span>
+    </button>`;
+  }).join('');
+}
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ============================================
+   Dashboard Rendering
+   ============================================ */
+function renderDashboard() {
+  const patient = PatientManager.getSelectedPatient();
+  const welcome = document.getElementById('dashboard-welcome');
+  const banner = document.getElementById('patient-banner');
+  const gridSection = document.getElementById('image-grid-section');
+  const compareSection = document.getElementById('compare-section');
+  const reportSection = document.getElementById('report-section');
+
+  if (!patient) {
+    welcome.classList.remove('hidden');
+    banner.classList.add('hidden');
+    gridSection.classList.add('hidden');
+    compareSection.classList.add('hidden');
+    reportSection.classList.add('hidden');
+    updateDashboardStats();
+    return;
+  }
+
+  welcome.classList.add('hidden');
+  banner.classList.remove('hidden');
+  gridSection.classList.remove('hidden');
+  compareSection.classList.remove('hidden');
+  reportSection.classList.remove('hidden');
+
+  // Banner
+  document.getElementById('patient-banner-name').textContent = patient.name;
+  const statusBadge = document.getElementById('patient-banner-status');
+  statusBadge.textContent = patient.status === 'pending' ? 'Pending' : patient.status === 'processing' ? 'Processing' : 'Completed';
+  statusBadge.className = 'badge';
+  statusBadge.classList.add('badge-' + patient.status);
+
+  const meta = [];
+  if (patient.gender) meta.push(patient.gender);
+  if (patient.age) meta.push(patient.age + ' yrs');
+  if (patient.admissionId) meta.push('#' + patient.admissionId);
+  const check = patient.checks[patient.checks.length - 1];
+  if (check) meta.push(check.type + ' | ' + check.date + ' | Dr. ' + check.doctor);
+  document.getElementById('patient-banner-meta').textContent = meta.join('  ·  ');
+  document.getElementById('patient-banner-history').textContent = patient.history || '';
+
+  // Image Grid
+  const grid = document.getElementById('image-grid');
+  const allImages = [];
+  patient.checks.forEach(c => {
+    c.images.forEach(img => { allImages.push(img); });
+  });
+
+  grid.innerHTML = allImages.map(img => {
+    const selected = img.id === PatientManager.selectedImageId ? ' selected' : '';
+    const statusLabels = {
+      uploaded: 'New',
+      roi_done: 'ROI Done',
+      sampled: 'Sampled',
+      predicted: 'Done'
+    };
+    const statusLabel = statusLabels[img.status] || 'New';
+    return `<div class="image-card${selected}" onclick="PatientManager.selectImage('${img.id}')" data-image-id="${img.id}">
+      <div class="image-card-thumb">
+        <div class="image-card-thumb-placeholder">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+      </div>
+      <div class="image-card-info">
+        <span class="image-card-name">${escHtml(img.name)}</span>
+        <span class="image-card-status ${img.status}">${statusLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Compare section
+  const sel = PatientManager.getSelectedImage();
+  const btnStart = document.getElementById('btn-start-workflow');
+  const selLabel = document.getElementById('selected-image-label');
+  const origPreview = document.getElementById('compare-original');
+  const predPreview = document.getElementById('compare-prediction');
+
+  if (sel) {
+    btnStart.disabled = false;
+    selLabel.textContent = 'Selected: ' + sel.image.name + ' (Status: ' + sel.image.status + ')';
+    origPreview.innerHTML = `<div class="compare-card-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>${escHtml(sel.image.name)}</span></div>`;
+
+    if (sel.image.status === 'predicted' && sel.image.result) {
+      predPreview.innerHTML = `<div class="compare-card-placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+        <span>Lesion: ${sel.image.result.lesionArea}% | Confidence: ${sel.image.result.confidence}%</span>
+      </div>`;
+    } else {
+      predPreview.innerHTML = `<div class="compare-card-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8.5A4.5 4.5 0 0 1 8.5 12"/></svg><span>Predict to see result</span></div>`;
+    }
+  } else {
+    btnStart.disabled = true;
+    selLabel.textContent = 'No image selected';
+    origPreview.innerHTML = '<div class="compare-card-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Select an image</span></div>';
+    predPreview.innerHTML = '<div class="compare-card-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8.5A4.5 4.5 0 0 1 8.5 12"/></svg><span>Predict to see result</span></div>';
+  }
+
+  // Report
+  renderReport(patient);
+  updateDashboardStats();
+}
+
+function renderReport(patient) {
+  const stats = document.getElementById('report-stats');
+  const tbody = document.getElementById('report-tbody');
+  const allImages = [];
+  patient.checks.forEach(c => {
+    c.images.forEach(img => { allImages.push(img); });
+  });
+
+  const total = allImages.length;
+  const predicted = allImages.filter(i => i.status === 'predicted').length;
+  const reviewed = allImages.filter(i => i.result && i.result.reviewed).length;
+  const avgLesion = allImages
+    .filter(i => i.result && i.result.lesionArea)
+    .reduce((sum, i) => sum + parseFloat(i.result.lesionArea), 0) / (predicted || 1);
+
+  stats.innerHTML = `
+    <div class="report-stat"><div class="report-stat-value">${total}</div><div class="report-stat-label">Images</div></div>
+    <div class="report-stat"><div class="report-stat-value">${predicted}</div><div class="report-stat-label">Predicted</div></div>
+    <div class="report-stat"><div class="report-stat-value">${reviewed}</div><div class="report-stat-label">Reviewed</div></div>
+    <div class="report-stat"><div class="report-stat-value">${avgLesion.toFixed(1)}%</div><div class="report-stat-label">Avg Lesion</div></div>
+  `;
+
+  tbody.innerHTML = allImages.map(img => {
+    const lesion = img.result ? img.result.lesionArea + '%' : '—';
+    const conf = img.result ? img.result.confidence + '%' : '—';
+    const reviewed = img.result && img.result.reviewed ? 'Yes' : 'No';
+    const statusLabels = { uploaded: 'Uploaded', roi_done: 'ROI Done', sampled: 'Sampled', predicted: 'Predicted' };
+    return `<tr><td>${escHtml(img.name)}</td><td>${statusLabels[img.status] || img.status}</td><td>${lesion}</td><td>${conf}</td><td>${reviewed}</td></tr>`;
+  }).join('');
+}
+
+function updateDashboardStats() {
+  const patients = PatientManager.getPatients();
+  let totalImages = 0, completed = 0;
+  patients.forEach(p => {
+    p.checks.forEach(c => {
+      totalImages += c.images.length;
+      c.images.forEach(img => { if (img.status === 'predicted') completed++; });
+    });
+  });
+  document.getElementById('stat-total-patients').textContent = patients.length;
+  document.getElementById('stat-total-images').textContent = totalImages;
+  document.getElementById('stat-completed').textContent = completed;
+}
+
+/* ============================================
+   Patient Modal
+   ============================================ */
+function openPatientModal() {
+  document.getElementById('patient-modal').classList.remove('hidden');
+}
+
+function savePatient() {
+  const name = document.getElementById('patient-name').value.trim();
+  if (!name) { showToast('Patient name is required', 'error'); return; }
+
+  const patient = StorageAdapter.addPatient({
+    name: name,
+    gender: document.getElementById('patient-gender').value,
+    age: document.getElementById('patient-age').value,
+    admissionId: document.getElementById('patient-admission').value.trim(),
+    scopeType: document.getElementById('patient-scope').value,
+    doctor: document.getElementById('patient-doctor').value.trim(),
+    history: document.getElementById('patient-history').value.trim()
+  });
+
+  // Clear form
+  document.getElementById('patient-name').value = '';
+  document.getElementById('patient-age').value = '';
+  document.getElementById('patient-admission').value = '';
+  document.getElementById('patient-doctor').value = '';
+  document.getElementById('patient-history').value = '';
+
+  closeModal('patient-modal');
+  PatientManager.selectPatient(patient.id);
+  showToast('Patient "' + patient.name + '" created', 'success');
+}
+
+function editPatient() {
+  showToast('Edit patient coming soon', 'info');
+}
+
+/* ============================================
+   Add Images to Patient
+   ============================================ */
+function addImagesToPatient() {
+  const patient = PatientManager.getSelectedPatient();
+  if (!patient) { showToast('Select a patient first', 'error'); return; }
+  const check = patient.checks[patient.checks.length - 1];
+  if (!check) { showToast('No check record found', 'error'); return; }
+
+  if (isElectron) {
+    electronAPI.openFileDialog();
+  } else {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.png,.jpg,.jpeg,.bmp,.tiff,.dcm';
+    input.multiple = true;
+    input.onchange = (e) => {
+      const files = Array.from(e.target.files);
+      const fileData = files.map(f => ({ name: f.name, path: f.name }));
+      StorageAdapter.addImages(patient.id, check.id, fileData);
+      StorageAdapter.reset();
+      PatientManager._selectedPatientId = patient.id;
+      updatePatientStatusAfterAdd(patient.id);
+      renderDashboard();
+      showToast(`${files.length} image(s) added to ${patient.name}`, 'success');
+    };
+    input.click();
+  }
+}
+
+function updatePatientStatusAfterAdd(patientId) {
+  const patient = StorageAdapter.getPatient(patientId);
+  if (!patient) return;
+  const hasImages = patient.checks.some(c => c.images.length > 0);
+  if (hasImages && patient.status === 'pending') {
+    StorageAdapter.updatePatient(patientId, { status: 'processing' });
+  }
+}
+
+/* ============================================
+   Workflow Mode
+   ============================================ */
+function setWorkflowMode(enabled) {
+  const sidebarNav = document.getElementById('sidebar-nav');
+  const sidebarSection = document.querySelector('.sidebar-section');
+  const sidebarDivider = document.querySelector('.sidebar-divider');
+
+  if (enabled) {
+    // Workflow mode: hide patient list, show workflow nav
+    if (sidebarSection) sidebarSection.style.display = 'none';
+    if (sidebarDivider) sidebarDivider.style.display = 'none';
+    sidebarNav.style.display = 'flex';
+    // Hide dashboard nav item in workflow mode
+    const dashboardItem = sidebarNav.querySelector('[data-module="dashboard"]');
+    if (dashboardItem) dashboardItem.style.display = 'none';
+  } else {
+    // Dashboard mode: show patient list, hide workflow nav
+    if (sidebarSection) sidebarSection.style.display = '';
+    if (sidebarDivider) sidebarDivider.style.display = '';
+    sidebarNav.style.display = 'none';
+    // Restore dashboard nav item
+    const dashboardItem = sidebarNav.querySelector('[data-module="dashboard"]');
+    if (dashboardItem) dashboardItem.style.display = '';
+  }
+}
+
+function updateWorkflowBackBtn() {
+  const btn = document.getElementById('workflow-back-btn');
+  if (PatientManager.isWorkflowMode) {
+    btn.classList.add('visible');
+  } else {
+    btn.classList.remove('visible');
+  }
+}
+
+function startWorkflow() {
+  PatientManager.startWorkflow();
+}
+
+function exitWorkflow() {
+  PatientManager.exitWorkflow();
+}
+
+/* ============================================
+   Generate Report
+   ============================================ */
+function generateReport() {
+  showToast('Generating structured report…', 'info');
+  setTimeout(() => showToast('Report generated successfully', 'success'), 1500);
+}
+
+function exportReport() {
+  showToast('Exporting report as PDF…', 'info');
+  setTimeout(() => showToast('Report exported', 'success'), 1000);
+}
+
+/* ============================================
+   Init Demo Data
+   ============================================ */
+function initDemoData() {
+  const db = StorageAdapter._load();
+  if (db.patients.length > 0) return; // Already has data
+
+  const demos = [
+    {
+      name: 'Zhang Wei', gender: 'M', age: '56', admissionId: '2024-00123',
+      history: 'Dysphagia for 3 months, retrosternal discomfort, occasional acid reflux. No significant weight loss.',
+      scopeType: 'Gastroscopy', doctor: 'Dr. Li',
+      status: 'processing',
+      images: [
+        { name: 'EEC_001.png', status: 'predicted', result: { lesionArea: '8.2', confidence: '94', reviewed: true } },
+        { name: 'EEC_002.png', status: 'roi_done', result: null },
+        { name: 'EEC_003.png', status: 'uploaded', result: null },
+        { name: 'EEC_004.png', status: 'predicted', result: { lesionArea: '12.8', confidence: '91', reviewed: false } }
+      ]
+    },
+    {
+      name: 'Li Ming', gender: 'F', age: '62', admissionId: '2024-00156',
+      history: 'Routine screening. Family history of esophageal cancer. Previous endoscopy 2 years ago was normal.',
+      scopeType: 'Gastroscopy', doctor: 'Dr. Wang',
+      status: 'completed',
+      images: [
+        { name: 'EEC_005.png', status: 'predicted', result: { lesionArea: '3.5', confidence: '97', reviewed: true } },
+        { name: 'EEC_006.png', status: 'predicted', result: { lesionArea: '5.1', confidence: '93', reviewed: true } }
+      ]
+    },
+    {
+      name: 'Wang Wu', gender: 'M', age: '48', admissionId: '2024-00189',
+      history: 'Epigastric pain, suspected early lesion. Awaiting biopsy confirmation.',
+      scopeType: 'Gastroscopy', doctor: 'Dr. Chen',
+      status: 'pending',
+      images: []
+    }
+  ];
+
+  demos.forEach(d => {
+    const patient = StorageAdapter.addPatient({
+      name: d.name, gender: d.gender, age: d.age,
+      admissionId: d.admissionId, history: d.history,
+      scopeType: d.scopeType, doctor: d.doctor
+    });
+    if (d.images.length > 0) {
+      const check = patient.checks[0];
+      StorageAdapter.addImages(patient.id, check.id, d.images.map(img => img.name));
+      d.images.forEach((img, i) => {
+        const checkImages = StorageAdapter.getPatient(patient.id).checks[0].images;
+        if (img.result) {
+          StorageAdapter.updateImage(patient.id, check.id, checkImages[i].id, {
+            status: img.status,
+            result: img.result
+          });
+        } else if (img.status !== 'uploaded') {
+          StorageAdapter.updateImage(patient.id, check.id, checkImages[i].id, {
+            status: img.status
+          });
+        }
+      });
+    }
+    // Set back the correct status
+    StorageAdapter.updatePatient(patient.id, { status: d.status });
+  });
+
+  StorageAdapter.reset();
+}
+
+/* ============================================
+   Event Listener for Electron file-open (patient context)
+   ============================================ */
+const _origElectronFileOpen = (isElectron && electronAPI.on) ? true : false;
+if (isElectron) {
+  // Override the files-opened listener to add to patient instead
+  electronAPI.removeAllListeners = function() {};
+
+  // Hook into existing listener
+  const origOn = electronAPI.on;
+  (function patchElectronEvents() {
+    // We'll handle this in the existing listener at the bottom
+  })();
+}
+
+// Init
+(function initPatientModule() {
+  initDemoData();
+  renderPatientList();
+  updateDashboardStats();
+  // Ensure sidebar nav is visible
+  setWorkflowMode(false);
+})();
 </script>
 
 </body>
