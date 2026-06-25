@@ -1942,7 +1942,7 @@ h4 { font-size: 1.125rem; }
       返回仪表盘
     </button>
     <nav class="nav" role="navigation" aria-label="Main navigation">
-      <button class="btn btn-outline btn-sm" onclick="open设置Panel()" aria-label="Open settings">
+      <button class="btn btn-outline btn-sm" onclick="openSettingsPanel()" aria-label="Open settings">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         设置
       </button>
@@ -2110,7 +2110,7 @@ h4 { font-size: 1.125rem; }
         <div class="image-grid-section hidden" id="image-grid-section">
           <div class="image-grid-header">
             <span class="image-grid-title">图像数</span>
-            <button class="btn btn-outline btn-sm" onclick="add图像数ToPatient()">Add 图像数</button>
+            <button class="btn btn-outline btn-sm" onclick="addImagesToPatient()">Add 图像数</button>
           </div>
           <div class="image-grid" id="image-grid">
             <!-- Dynamically populated -->
@@ -2190,8 +2190,8 @@ h4 { font-size: 1.125rem; }
           role="button"
           tabindex="0"
           aria-label="Upload medical images. Click to open file dialog or drag and drop files."
-          onclick="upload图像数()"
-          onkeydown="if(event.key==='Enter'||event.key===' ') { upload图像数(); event.preventDefault(); }"
+          onclick="uploadImages()"
+          onkeydown="if(event.key==='Enter'||event.key===' ') { uploadImages(); event.preventDefault(); }"
           ondragover="handleDragOver(event)"
           ondragleave="handleDragLeave(event)"
           ondrop="handleDrop(event)"
@@ -2354,7 +2354,7 @@ h4 { font-size: 1.125rem; }
             <div class="card-title">导出格式</div>
             <div class="card-desc">支持 COCO JSON、YOLO TXT、Pascal VOC XML 格式导出，可直接用于 PyTorch 训练。</div>
             <span class="tag tag-success">COCO · YOLO · Pascal</span>
-            <button class="btn btn-outline btn-sm" style="width:100%;margin-top:var(--space-2)" onclick="showToast('Dataset exported', 'success')">导出</button>
+            <button class="btn btn-outline btn-sm" style="width:100%;margin-top:var(--space-2)" onclick="showToast('数据集已导出', 'success')">导出</button>
           </div>
         </div>
 
@@ -2455,7 +2455,7 @@ h4 { font-size: 1.125rem; }
               <select class="select-input" id="predict-model-select" aria-label="Select model for prediction">
                 <option>EEC-UNet-ResNet34 (Esophageal)</option>
               </select>
-              <button class="btn btn-primary" id="predict-btn" onclick="run预测()">
+              <button class="btn btn-primary" id="predict-btn" onclick="runPrediction()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8.5A4.5 4.5 0 0 1 8.5 12"/><polyline points="8.5 12 12 8.5 15.5 12"/></svg>
                 开始预测
               </button>
@@ -3469,7 +3469,7 @@ function switchModule(moduleName) {
 /* ============================================
    设置 Panel via Header Button
    ============================================ */
-function open设置Panel() {
+function openSettingsPanel() {
   openModal('settings-modal');
 }
 
@@ -3546,7 +3546,7 @@ if (isElectron) {
       const check = patient.checks[patient.checks.length - 1];
       if (check) {
         const fileData = filePaths.map(fp => ({ name: fp.split(/[\\/]/).pop(), path: fp }));
-        StorageAdapter.add图像数(patient.id, check.id, fileData);
+        StorageAdapter.addImages(patient.id, check.id, fileData);
         StorageAdapter.reset();
         PatientManager._selectedPatientId = patient.id;
         updatePatientStatusAfterAdd(patient.id);
@@ -3592,7 +3592,7 @@ if (isElectron) {
     switch (action) {
       case 'generate-dataset': switchModule('dataset'); generateDataset(); break;
       case 'train-model': switchModule('training'); startTraining(); break;
-      case 'run-prediction': switchModule('prediction'); run预测(); break;
+      case 'run-prediction': switchModule('prediction'); runPrediction(); break;
     }
   });
 
@@ -3604,7 +3604,7 @@ if (isElectron) {
 /* ============================================
    Native File Dialog (Electron)
    ============================================ */
-async function upload图像数() {
+async function uploadImages() {
   if (isElectron) {
     await electronAPI.openFileDialog();
   } else {
@@ -3651,28 +3651,28 @@ function processFiles(files) {
 /* ============================================
    Upload Preview
    ============================================ */
-let uploaded图像数 = [];
+let uploadedImages = [];
 
 function addUploadPreviews(filePaths) {
   filePaths.forEach(fp => {
     const name = fp.split(/[\\/]/).pop();
-    uploaded图像数.push({ name, path: fp, isLocal: true });
+    uploadedImages.push({ name, path: fp, isLocal: true });
   });
   renderPreviews();
 }
 
 function addUploadPreviewsFromFiles(files) {
   Array.from(files).forEach(file => {
-    uploaded图像数.push({ name: file.name, file, isLocal: false });
+    uploadedImages.push({ name: file.name, file, isLocal: false });
   });
   renderPreviews();
 }
 
 function removePreview(index) {
-  uploaded图像数.splice(index, 1);
+  uploadedImages.splice(index, 1);
   renderPreviews();
   document.getElementById('upload-status').textContent =
-    uploaded图像数.length === 0 ? 'No files selected' : `${uploaded图像数.length} file(s) selected`;
+    uploadedImages.length === 0 ? 'No files selected' : `${uploadedImages.length} file(s) selected`;
 }
 
 function renderPreviews() {
@@ -3680,16 +3680,16 @@ function renderPreviews() {
   const grid = document.getElementById('upload-preview-grid');
   const title = document.getElementById('upload-preview-title');
 
-  if (uploaded图像数.length === 0) {
+  if (uploadedImages.length === 0) {
     section.classList.add('hidden');
     return;
   }
 
   section.classList.remove('hidden');
-  title.textContent = `Uploaded 图像数 (${uploaded图像数.length})`;
+  title.textContent = `Uploaded 图像数 (${uploadedImages.length})`;
   grid.innerHTML = '';
 
-  uploaded图像数.forEach((img, i) => {
+  uploadedImages.forEach((img, i) => {
     const card = document.createElement('div');
     card.className = 'preview-card';
 
@@ -3927,7 +3927,7 @@ async function startTraining() {
 /* ============================================
    Run 预测
    ============================================ */
-async function run预测() {
+async function runPrediction() {
   const resultArea = document.getElementById('prediction-result-area');
   const predictBtn = document.getElementById('predict-btn');
   const label = document.getElementById('prediction-label');
@@ -3954,14 +3954,14 @@ async function run预测() {
     if (PatientManager.isWorkflowMode) {
       const sel = PatientManager.getSelectedImage();
       if (sel) {
-        PatientManager.complete预测(sel.image.id, {
+        PatientManager.completePrediction(sel.image.id, {
           maskPath: '../backend/YOHO-main/img_out/' + pngName + '.png',
           overlayPath: '../backend/YOHO-main/img_out/' + pngName + '.png',
           lesionArea: (Math.random() * 15 + 3).toFixed(1),
           confidence: '94.2',
           reviewed: false
         });
-        showToast('预测 complete — returning to Dashboard', 'success');
+        showToast('预测完成 — 返回仪表盘', 'success');
       }
     }
   } else {
@@ -4003,7 +4003,6 @@ async function generateDataset() {
   if (result.code === 0) {
     document.getElementById('dataset-progress-fill').style.width = '100%';
     document.getElementById('dataset-progress-pct').textContent = '100%';
-  }
     showToast(`数据集生成成功 (${totalImgs} 张)`, 'success');
     // Store actual training image count
     const actualCnt = (async () => {
@@ -4093,7 +4092,7 @@ const StorageAdapter = {
     this._save();
   },
 
-  add图像数(patientId, checkId, imageFiles) {
+  addImages(patientId, checkId, imageFiles) {
     const db = this._load();
     const patient = db.patients.find(p => p.id === patientId);
     if (!patient) return;
@@ -4197,7 +4196,7 @@ const PatientManager = {
     switchModule('dashboard');
   },
 
-  complete预测(imageId, result) {
+  completePrediction(imageId, result) {
     const patient = this.getSelectedPatient();
     if (!patient) return;
     for (const check of patient.checks) {
@@ -4316,12 +4315,12 @@ function renderDashboard() {
 
   // Image Grid
   const grid = document.getElementById('image-grid');
-  const all图像数 = [];
+  const allImages = [];
   patient.checks.forEach(c => {
-    c.images.forEach(img => { all图像数.push(img); });
+    c.images.forEach(img => { allImages.push(img); });
   });
 
-  grid.innerHTML = all图像数.map(img => {
+  grid.innerHTML = allImages.map(img => {
     const selected = img.id === PatientManager.selectedImageId ? ' selected' : '';
     const statusLabels = {
       uploaded: '新建',
@@ -4391,15 +4390,15 @@ function renderDashboard() {
 function renderReport(patient) {
   const stats = document.getElementById('report-stats');
   const tbody = document.getElementById('report-tbody');
-  const all图像数 = [];
+  const allImages = [];
   patient.checks.forEach(c => {
-    c.images.forEach(img => { all图像数.push(img); });
+    c.images.forEach(img => { allImages.push(img); });
   });
 
-  const total = all图像数.length;
-  const predicted = all图像数.filter(i => i.status === 'predicted').length;
-  const reviewed = all图像数.filter(i => i.result && i.result.reviewed).length;
-  const avgLesion = all图像数
+  const total = allImages.length;
+  const predicted = allImages.filter(i => i.status === 'predicted').length;
+  const reviewed = allImages.filter(i => i.result && i.result.reviewed).length;
+  const avgLesion = allImages
     .filter(i => i.result && i.result.lesionArea)
     .reduce((sum, i) => sum + parseFloat(i.result.lesionArea), 0) / (predicted || 1);
 
@@ -4410,7 +4409,7 @@ function renderReport(patient) {
     <div class="report-stat"><div class="report-stat-value">${avgLesion.toFixed(1)}%</div><div class="report-stat-label">Avg Lesion</div></div>
   `;
 
-  tbody.innerHTML = all图像数.map(img => {
+  tbody.innerHTML = allImages.map(img => {
     const lesion = img.result ? img.result.lesionArea + '%' : '—';
     const conf = img.result ? img.result.confidence + '%' : '—';
     const reviewed = img.result && img.result.reviewed ? 'Yes' : 'No';
@@ -4421,15 +4420,15 @@ function renderReport(patient) {
 
 function updateDashboardStats() {
   const patients = PatientManager.getPatients();
-  let total图像数 = 0, completed = 0;
+  let totalImageCount = 0, completed = 0;
   patients.forEach(p => {
     p.checks.forEach(c => {
-      total图像数 += c.images.length;
+      totalImageCount += c.images.length;
       c.images.forEach(img => { if (img.status === 'predicted') completed++; });
     });
   });
   document.getElementById('stat-total-patients').textContent = patients.length;
-  document.getElementById('stat-total-images').textContent = total图像数;
+  document.getElementById('stat-total-images').textContent = totalImageCount;
   document.getElementById('stat-completed').textContent = completed;
 }
 
@@ -4473,7 +4472,7 @@ function editPatient() {
 /* ============================================
    Add 图像数 to Patient
    ============================================ */
-function add图像数ToPatient() {
+function addImagesToPatient() {
   const patient = PatientManager.getSelectedPatient();
   if (!patient) { showToast('Select a patient first', 'error'); return; }
   const check = patient.checks[patient.checks.length - 1];
@@ -4489,7 +4488,7 @@ function add图像数ToPatient() {
     input.onchange = (e) => {
       const files = Array.from(e.target.files);
       const fileData = files.map(f => ({ name: f.name, path: f.name }));
-      StorageAdapter.add图像数(patient.id, check.id, fileData);
+      StorageAdapter.addImages(patient.id, check.id, fileData);
       StorageAdapter.reset();
       PatientManager._selectedPatientId = patient.id;
       updatePatientStatusAfterAdd(patient.id);
@@ -4503,8 +4502,8 @@ function add图像数ToPatient() {
 function updatePatientStatusAfterAdd(patientId) {
   const patient = StorageAdapter.getPatient(patientId);
   if (!patient) return;
-  const has图像数 = patient.checks.some(c => c.images.length > 0);
-  if (has图像数 && patient.status === 'pending') {
+  const hasImages = patient.checks.some(c => c.images.length > 0);
+  if (hasImages && patient.status === 'pending') {
     StorageAdapter.updatePatient(patientId, { status: 'processing' });
   }
 }
@@ -4623,16 +4622,16 @@ function initDemoData() {
     });
     if (d.images.length > 0) {
       const check = patient.checks[0];
-      StorageAdapter.add图像数(patient.id, check.id, d.images.map(img => ({ name: img.name, path: img.path })));
+      StorageAdapter.addImages(patient.id, check.id, d.images.map(img => ({ name: img.name, path: img.path })));
       d.images.forEach((img, i) => {
-        const check图像数 = StorageAdapter.getPatient(patient.id).checks[0].images;
+        const checkImages = StorageAdapter.getPatient(patient.id).checks[0].images;
         if (img.result) {
-          StorageAdapter.updateImage(patient.id, check.id, check图像数[i].id, {
+          StorageAdapter.updateImage(patient.id, check.id, checkImages[i].id, {
             status: img.status,
             result: img.result
           });
         } else if (img.status !== 'uploaded') {
-          StorageAdapter.updateImage(patient.id, check.id, check图像数[i].id, {
+          StorageAdapter.updateImage(patient.id, check.id, checkImages[i].id, {
             status: img.status
           });
         }
