@@ -3476,7 +3476,7 @@ function open设置Panel() {
 function saveSettings() {
   const count = document.getElementById('setting-sample-count').value;
   try { localStorage.setItem('mediscan-sample-count', count); } catch(e) {}
-  updateSettingsDisplay();
+  // Don't update training count here — only update from actual generation
   closeModal('settings-modal');
   showToast('设置已保存', 'success');
 }
@@ -3486,16 +3486,21 @@ function loadSettings() {
     const saved = localStorage.getItem('mediscan-sample-count');
     if (saved) document.getElementById('setting-sample-count').value = saved;
   } catch(e) {}
-  updateSettingsDisplay();
+  // Load actual training image count, or calculate from setting if never generated
+  const actualCount = parseInt(localStorage.getItem('mediscan-actual-image-count')) || 0;
+  if (actualCount > 0) {
+    updateTrainingCount(actualCount);
+  } else {
+    const settingCount = parseInt(document.getElementById('setting-sample-count')?.value) || 350;
+    updateTrainingCount(settingCount * 4);
+  }
 }
 
-function updateSettingsDisplay() {
-  const count = parseInt(document.getElementById('setting-sample-count')?.value) || 350;
-  const total = count * 4;
+function updateTrainingCount(count) {
   const tag = document.getElementById('dataset-count-tag');
-  if (tag) tag.textContent = total + ' 图像数';
+  if (tag) tag.textContent = count + ' 图像数';
   const metric = document.getElementById('metric-dataset-count');
-  if (metric) metric.textContent = total;
+  if (metric) metric.textContent = count;
 }
 
 /* ============================================
@@ -3852,7 +3857,8 @@ async function startTraining() {
       if (data.type === 'stderr') {
         // tqdm format: "Epoch 1/20: 45%|████▌   | 45/100 [00:30<00:36]"
         const epochMatch = text.match(/Epoch\s*(\d+)\/(\d+)/i);
-        const batchMatch = text.match(/\|\s*(\d+)\/(\d+)\s*\[/);
+        // Parse batch progress: find "X/Y" right before "["
+        const batchMatch = text.match(/[|\s](\d+)\/(\d+)\s*\[/);
         if (epochMatch) {
           const current = parseInt(epochMatch[1]);
           const total = parseInt(epochMatch[2]);
@@ -3992,6 +3998,9 @@ async function generateDataset() {
 
   if (result.code === 0) {
     showToast(`数据集生成成功 (${totalImgs} 张)`, 'success');
+    // Store actual training image count
+    try { localStorage.setItem('mediscan-actual-image-count', String(totalImgs)); } catch(e) {}
+    updateTrainingCount(totalImgs);
     await runPythonScript('voc_annotation_medical.py', []);
   } else {
     showToast('数据集生成失败', 'error');
