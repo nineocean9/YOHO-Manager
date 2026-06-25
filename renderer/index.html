@@ -3473,6 +3473,33 @@ function open设置Panel() {
   openModal('settings-modal');
 }
 
+const SETTINGS_KEYS = ['setting-sample-count'];
+function saveSettings() {
+  SETTINGS_KEYS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) localStorage.setItem('yoho-' + id, el.value);
+  });
+  closeModal('settings-modal');
+  updateTrainingCount();
+  showToast('设置已保存', 'success');
+}
+function loadSettings() {
+  SETTINGS_KEYS.forEach(id => {
+    const el = document.getElementById(id);
+    const saved = localStorage.getItem('yoho-' + id);
+    if (el && saved !== null) el.value = saved;
+  });
+  updateTrainingCount();
+}
+function updateTrainingCount() {
+  const val = parseInt(document.getElementById('setting-sample-count')?.value) || 350;
+  const total = val * 4;
+  const tag = document.getElementById('dataset-count-tag');
+  if (tag) tag.textContent = total + ' 图像数';
+  const metric = document.getElementById('metric-dataset-count');
+  if (metric) metric.textContent = total;
+}
+
 function saveSettings() {
   const count = document.getElementById('setting-sample-count').value;
   try { localStorage.setItem('mediscan-sample-count', count); } catch(e) {}
@@ -3535,8 +3562,8 @@ window.addEventListener('hashchange', handleHashChange);
     switchModule('dashboard');
   }
   // Init dataset count from settings
-  const initCount = parseInt(document.getElementById('setting-sample-count')?.value) || 350;
-  document.getElementById('dataset-count-tag').textContent = (initCount * 4) + ' 图像数';
+  loadSettings();
+  updateTrainingCount();
 })();
 
 /* ============================================
