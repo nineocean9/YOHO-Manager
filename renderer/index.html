@@ -2333,8 +2333,17 @@ h4 { font-size: 1.125rem; }
             </div>
             <div class="card-title">合成数据set</div>
             <div class="card-desc">Generate 1600 synthetic training images from a single annotation. Uses affine transformations and multi-scale patch composition.</div>
-            <span class="tag tag-info">1600 图像数</span>
+            <span class="tag tag-info" id="dataset-count-tag">1600 图像数</span>
             <button class="btn btn-accent btn-sm" style="width:100%;margin-top:var(--space-2)" onclick="generateDataset()">生成数据集</button>
+            <div class="dataset-progress hidden" id="dataset-progress-area" style="margin-top:var(--space-3)">
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem">
+                <span id="dataset-progress-text">生成中…</span>
+                <span id="dataset-progress-pct">0%</span>
+              </div>
+              <div class="progress-bar" style="margin-top:var(--space-1)">
+                <div class="progress-fill" id="dataset-progress-fill" style="width:0%"></div>
+              </div>
+            </div>
           </div>
 
           <div class="tool-card">
@@ -2393,18 +2402,25 @@ h4 { font-size: 1.125rem; }
 
           <div class="training-progress hidden" id="training-progress-area">
             <div style="display:flex;justify-content:space-between;align-items:center">
-              <span class="text-sm font-mono" style="font-weight:600" id="training-status-text">Training… Epoch 5/50</span>
-              <span class="text-sm text-muted" id="training-percent">10%</span>
+              <span class="text-sm font-mono" style="font-weight:600" id="training-status-text">准备训练</span>
+              <span class="text-sm text-muted" id="training-percent">0%</span>
             </div>
-            <div class="progress-bar">
-              <div class="progress-fill" id="progress-fill" style="width:10%"></div>
+            <div class="progress-bar" style="margin-bottom:var(--space-2)">
+              <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;color:var(--color-muted-foreground)">
+              <span id="training-epoch-text">Epoch 0/0</span>
+              <span id="training-batch-text" style="font-family:var(--font-mono)"></span>
+            </div>
+            <div class="progress-bar" style="height:4px;background:var(--color-border-light)">
+              <div class="progress-fill" id="progress-epoch-fill" style="width:0%;background:var(--color-accent)"></div>
             </div>
           </div>
 
           <div class="training-metrics">
             <div class="metric-card">
-              <div class="metric-value">1,600</div>
-              <div class="metric-label">Synthetic 图像数</div>
+              <div class="metric-value" id="metric-dataset-count">0</div>
+              <div class="metric-label">训练图像数</div>
             </div>
             <div class="metric-card">
               <div class="metric-value">2</div>
@@ -3486,6 +3502,9 @@ window.addEventListener('hashchange', handleHashChange);
   } else {
     switchModule('dashboard');
   }
+  // Init dataset count from settings
+  const initCount = parseInt(document.getElementById('setting-sample-count')?.value) || 350;
+  document.getElementById('dataset-count-tag').textContent = (initCount * 4) + ' 图像数';
 })();
 
 /* ============================================
@@ -3811,6 +3830,14 @@ async function startTraining() {
         progressFill.style.width = pct + '%';
         percentText.textContent = pct + '%';
         statusText.textContent = `Training… Epoch ${current}/${total}`;
+        // Update epoch progress
+        const epFill = document.getElementById('progress-epoch-fill');
+        if (epFill) {
+          const freezeEpochs = parseInt(document.getElementById('setting-freeze-epochs')?.value) || 20;
+          const epPct = ((current % freezeEpochs) / freezeEpochs) * 100;
+          epFill.style.width = Math.min(epPct, 100) + '%';
+        }
+        document.getElementById('training-epoch-text').textContent = 'Epoch ' + current + '/' + total;
       }
     }
   });
@@ -3884,15 +3911,21 @@ async function run预测() {
 async function generateDataset() {
   const pngName = getCurrentPngName();
   const sampleCount = parseInt(document.getElementById('setting-sample-count').value) || 350;
-  showToast(`Generating dataset (${sampleCount} samples)…`, 'info');
+  const totalImgs = sampleCount * 4;
+  document.getElementById('dataset-count-tag').textContent = totalImgs + ' 图像数';
+  document.getElementById('dataset-progress-area').classList.remove('hidden');
+  document.getElementById('dataset-progress-fill').style.width = '0%';
+  document.getElementById('dataset-progress-pct').textContent = '0%';
+  document.getElementById('dataset-progress-text').textContent = '生成中…';
+  showToast(`开始生成数据集 (${totalImgs} 张)`, 'info');
 
   onPythonOutput((data) => {
     if (data.type === 'stdout') {
-      // Parse PROGRESS:current/total
       const match = data.text.match(/PROGRESS:(\d+)\/(\d+)/);
       if (match) {
         const pct = Math.round((parseInt(match[1]) / parseInt(match[2])) * 100);
-        showToast(`Dataset generation: ${pct}%`, 'info');
+        document.getElementById('dataset-progress-fill').style.width = pct + '%';
+        document.getElementById('dataset-progress-pct').textContent = pct + '%';
       }
     }
   });
@@ -3902,12 +3935,13 @@ async function generateDataset() {
     '--sample_count', String(sampleCount)
   ]);
 
+  document.getElementById('dataset-progress-text').textContent = result.code === 0 ? '已完成' : '失败';
+
   if (result.code === 0) {
-    const total = sampleCount * 4;
-    showToast(`Dataset generated successfully (${total} images)`, 'success');
+    showToast(`数据集生成成功 (${totalImgs} 张)`, 'success');
     await runPythonScript('voc_annotation_medical.py', []);
   } else {
-    showToast('Dataset generation failed', 'error');
+    showToast('数据集生成失败', 'error');
   }
 }
 
