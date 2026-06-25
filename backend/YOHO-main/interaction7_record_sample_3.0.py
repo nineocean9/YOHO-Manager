@@ -7,6 +7,7 @@ import itertools
 import pickle
 import math
 import os
+import sys
 
 ##-------- by Dingrui Liu- ---------- -##
 ## Design ideas:
@@ -83,7 +84,8 @@ class Label:
         self.sp = self.img.shape
         self.img2 = self.img.copy()
         self.slic = slic_(path)
-        self.randlist = list(itertools.product(range(self.sp[1]), range(self.sp[0])))
+        if self.slic is None:
+            self.randlist = list(itertools.product(range(self.sp[1]), range(self.sp[0])))
         self.cent = []
         self.ind = {}
         self.tind = {}  #
@@ -732,14 +734,81 @@ def get_true(src):
 
 def slic_(p_t):
     img = cv2.imread(p_t)
-    # 初始化slic项，超像素平均尺寸20（默认为10），平滑因子20
-    slic = cv2.ximgproc.createSuperpixelSLIC(img, region_size=48, ruler=20.0)
-    slic.iterate(10)  # 迭代次数，越大效果越好
-    label_slic = np.array(slic.getLabels(), np.uint8)  # 获取超像素标签
-    return label_slic
+    try:
+        slic = cv2.ximgproc.createSuperpixelSLIC(img, region_size=48, ruler=20.0)
+        slic.iterate(10)
+        label_slic = np.array(slic.getLabels(), np.uint8)
+        return label_slic
+    except (AttributeError, cv2.error):
+        return None
 
 
 if __name__ == "__main__":
+    # CLI mode: accept coords, skip GUI
+    if '--name' in sys.argv and '--coords' in sys.argv:
+        import argparse
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--name', required=True)
+        parser.add_argument('--coords', required=True)
+        parser.add_argument('--img-path', default=None)
+        args, _ = parser.parse_known_args()
+
+        n = args.name
+        save_sample_path = "../EEC_save_sample_13.0/"
+        path_sor = save_sample_path + n + "/nms/"
+        path_lab = save_sample_path + n + "/source/"
+
+        for d in [save_sample_path + n, save_sample_path + n + "/nms", save_sample_path + n + "/source"]:
+            os.makedirs(d, exist_ok=True)
+
+        img_path = args.img_path or f"./img/{n}.png"
+        img = cv2.imread(img_path)
+        r_min = int(max(img.shape[0], img.shape[1]) / 256 * 8)
+        if r_min % 2 != 0: r_min += 1
+        r_max = 4 * r_min
+
+        lab = Label(r_min, r_max, 0, img_path)
+        lab.cent = []
+        lab.ind = {}
+        lab.cnd = {}
+        lab.tcnd = {}
+        lab.tind = {}
+        lab.rnd = {}
+        lab.weight = {}
+
+        coords = [c.strip() for c in args.coords.split(';')]
+        for idx, coord in enumerate(coords):
+            x, y, r = map(int, coord.split(','))
+            lab.num_class = idx
+            lab.id = idx + 1
+            lab.point1 = (x, y)
+            lab.r = r
+            lab.start = 0
+            lab.cent.append((x, y))
+            ind_part, tind_part, cnd_part, tcnd_part, s_r, wgt = lab.sample(
+                (x, y), r, lab.id, 4, 0
+            )
+            lab.ind[lab.id] = ind_part
+            lab.tind[lab.id] = tind_part
+            lab.cnd[lab.id] = cnd_part
+            lab.tcnd[lab.id] = tcnd_part
+            lab.rnd[lab.id] = s_r
+            lab.weight[lab.id] = wgt
+            lab.trnum = lab.id
+
+        # Save PKL files
+        for fname, data in [
+            ("cent.pkl", lab.cent), ("ind.pkl", lab.ind), ("cnd.pkl", lab.cnd),
+            ("tcnd.pkl", lab.tcnd), ("tind.pkl", lab.tind), ("sp.pkl", lab.sp),
+            ("trnum.pkl", lab.trnum), ("rnd.pkl", lab.rnd)
+        ]:
+            with open(save_sample_path + n + "/" + fname, "wb") as f:
+                pickle.dump(data, f)
+
+        print(f"Sampling data saved for {n} ({len(coords)} points)")
+        sys.exit(0)
+
+    # Original GUI mode
     # 建议取值为(max(h,w)/256*4+1,max(h,w)/256*32+1)
     if not (os.path.exists(save_sample_path + n)):
         os.makedirs(save_sample_path + n, exist_ok=True)

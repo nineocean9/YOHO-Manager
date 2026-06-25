@@ -2498,6 +2498,13 @@ h4 { font-size: 1.125rem; }
       </div>
       <div class="setting-item">
         <div class="setting-info">
+          <span class="setting-label">数据集生成数量</span>
+          <span class="setting-desc">每次生成合成训练图像的数量（默认 350，生成约 1400 张）</span>
+        </div>
+        <input class="input" type="number" id="setting-sample-count" value="350" min="50" max="1000" step="50" style="width:80px">
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
           <span class="setting-label">GPU Acceleration</span>
           <span class="setting-desc">Enable hardware acceleration for training</span>
         </div>
@@ -3215,7 +3222,7 @@ function labelingClear() {
   updateLabelingHint();
 }
 
-function labelingFinishPhase() {
+async function labelingFinishPhase() {
   if (labelingState.points.length < 2) {
     showToast('请至少放置 2 个采样点', 'error');
     return;
@@ -3223,16 +3230,32 @@ function labelingFinishPhase() {
   const sel = PatientManager.getSelectedImage();
   if (!sel) return;
   const patient = PatientManager.getSelectedPatient();
-  // Save sampling points as image coordinates
+  // Convert to image coordinates
   const scale = labelingState.scale;
   const sampleImagePoints = labelingState.points.map(p => ({
     x: Math.round((p.x - labelingState.offsetX) / scale),
     y: Math.round((p.y - labelingState.offsetY) / scale),
     r: Math.round(p.r / scale)
   }));
+
+  // Save PKL files via interaction7 (correct multi-scale sampling)
+  const pngName = sel.image.name.replace(/\.\w+$/, '');
+  const coordsStr = sampleImagePoints.map(p => `${p.x},${p.y},${p.r}`).join(';');
+  const img = labelingState.image;
+  const result = await runPythonScript('interaction7_record_sample_3.0.py', [
+    '--coords', coordsStr,
+    '--name', pngName,
+    '--img-path', labelingState._lastPath
+  ]);
+
+  if (result.code !== 0) {
+    showToast('保存采样数据失败: ' + result.stderr.slice(-60), 'error');
+    return;
+  }
+
   StorageAdapter.updateImage(patient.id, sel.check.id, sel.image.id, {
     status: 'sampled',
-    samplePklPath: 'EEC_save_sample_13.0/' + sel.image.name.replace(/\.\w+$/, '') + '/',
+    samplePklPath: 'EEC_save_sample_13.0/' + pngName + '/',
     samplePoints: sampleImagePoints,
     reverseRoi: labelingState.reverseRoi
   });
@@ -3860,7 +3883,8 @@ async function run预测() {
    ============================================ */
 async function generateDataset() {
   const pngName = getCurrentPngName();
-  showToast('Generating dataset…', 'info');
+  const sampleCount = parseInt(document.getElementById('setting-sample-count').value) || 350;
+  showToast(`Generating dataset (${sampleCount} samples)…`, 'info');
 
   onPythonOutput((data) => {
     if (data.type === 'stdout') {
@@ -3873,11 +3897,14 @@ async function generateDataset() {
     }
   });
 
-  const result = await runPythonScript('recreate_sample_3.0.py', ['--png_name', pngName]);
+  const result = await runPythonScript('recreate_sample_3.0.py', [
+    '--png_name', pngName,
+    '--sample_count', String(sampleCount)
+  ]);
 
   if (result.code === 0) {
-    showToast('Dataset generated successfully (1600 images)', 'success');
-    // Build index after dataset generation
+    const total = sampleCount * 4;
+    showToast(`Dataset generated successfully (${total} images)`, 'success');
     await runPythonScript('voc_annotation_medical.py', []);
   } else {
     showToast('Dataset generation failed', 'error');

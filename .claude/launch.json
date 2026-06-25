@@ -9,15 +9,9 @@
       "autoPort": true
     },
     {
-      "name": "medical-ui",
+      "name": "yoho-manager",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["live-server", "D:/Downloads/test", "--port=1520", "--no-browser"],
-      "port": 1520
-    },
-    {
-      "name": "mediscan-homepage",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["live-server", "C:/Users/chenyuhao/Desktop/大学/课程/物联网/考试/renderer", "--port=1530", "--no-browser"],
+      "runtimeArgs": ["live-server", "F:/YOHO-Manager/renderer", "--port=1530", "--no-browser"],
       "port": 1530
     }
   ]

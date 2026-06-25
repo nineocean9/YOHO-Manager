@@ -44,7 +44,12 @@ def _advance_progress(n=1):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--png_name", default="dummy", help="Input image name")
+parser.add_argument("--sample_count", default=None, type=int, help="Number of samples to generate")
 args = parser.parse_args()
+
+# CLI --sample_count 覆盖 config.json 的值
+if args.sample_count is not None:
+    number = args.sample_count
 
 n = args.png_name
 
@@ -57,7 +62,7 @@ path_sor = save_sample_path + n + "/nms/"
 path_lab = save_sample_path + n + "/source/"
 
 # ROI
-path_msk = "../Dataset/EEC/EEC_test_dataset_label/" + n + ".png"  
+path_msk = "./Dataset/EEC/EEC_test_dataset_label/" + n + ".png"  
 
 # Trainning set
 path_train = "./Medical_Datasets/Images/"
