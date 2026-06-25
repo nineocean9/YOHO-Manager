@@ -2335,15 +2335,6 @@ h4 { font-size: 1.125rem; }
             <div class="card-desc">Generate 1600 synthetic training images from a single annotation. Uses affine transformations and multi-scale patch composition.</div>
             <span class="tag tag-info" id="dataset-count-tag">1600 图像数</span>
             <button class="btn btn-accent btn-sm" style="width:100%;margin-top:var(--space-2)" onclick="generateDataset()">生成数据集</button>
-            <div class="dataset-progress hidden" id="dataset-progress-area" style="margin-top:var(--space-3)">
-              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem">
-                <span id="dataset-progress-text">生成中…</span>
-                <span id="dataset-progress-pct">0%</span>
-              </div>
-              <div class="progress-bar" style="margin-top:var(--space-1)">
-                <div class="progress-fill" id="dataset-progress-fill" style="width:0%"></div>
-              </div>
-            </div>
           </div>
 
           <div class="tool-card">
@@ -2364,6 +2355,17 @@ h4 { font-size: 1.125rem; }
             <div class="card-desc">Export in COCO JSON, YOLO TXT, or Pascal VOC XML formats. Ready for PyTorch training.</div>
             <span class="tag tag-success">COCO · YOLO · Pascal</span>
             <button class="btn btn-outline btn-sm" style="width:100%;margin-top:var(--space-2)" onclick="showToast('Dataset exported', 'success')">导出</button>
+          </div>
+        </div>
+
+        <!-- 数据集进度条（tool-grid 外部，撑满全宽） -->
+        <div class="dataset-progress hidden" id="dataset-progress-area">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem">
+            <span id="dataset-progress-text">生成中…</span>
+            <span id="dataset-progress-pct">0%</span>
+          </div>
+          <div class="progress-bar" style="margin-top:var(--space-1)">
+            <div class="progress-fill" id="dataset-progress-fill" style="width:0%"></div>
           </div>
         </div>
       </div>
@@ -2552,7 +2554,7 @@ h4 { font-size: 1.125rem; }
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('settings-modal')">取消</button>
-      <button class="btn btn-primary" onclick="closeModal('settings-modal');showToast('设置已保存','success')">保存更改</button>
+      <button class="btn btn-primary" onclick="saveSettings()">保存更改</button>
     </div>
   </div>
 </div>
@@ -3471,6 +3473,31 @@ function open设置Panel() {
   openModal('settings-modal');
 }
 
+function saveSettings() {
+  const count = document.getElementById('setting-sample-count').value;
+  try { localStorage.setItem('mediscan-sample-count', count); } catch(e) {}
+  updateSettingsDisplay();
+  closeModal('settings-modal');
+  showToast('设置已保存', 'success');
+}
+
+function loadSettings() {
+  try {
+    const saved = localStorage.getItem('mediscan-sample-count');
+    if (saved) document.getElementById('setting-sample-count').value = saved;
+  } catch(e) {}
+  updateSettingsDisplay();
+}
+
+function updateSettingsDisplay() {
+  const count = parseInt(document.getElementById('setting-sample-count')?.value) || 350;
+  const total = count * 4;
+  const tag = document.getElementById('dataset-count-tag');
+  if (tag) tag.textContent = total + ' 图像数';
+  const metric = document.getElementById('metric-dataset-count');
+  if (metric) metric.textContent = total;
+}
+
 /* ============================================
    Hash Routing
    ============================================ */
@@ -3819,19 +3846,45 @@ async function startTraining() {
   const pngName = getCurrentPngName();
 
   onPythonOutput((data) => {
-    if (data.type === 'stdout') {
-      statusText.textContent = data.text.trim().split('\n').pop() || 'Training…';
-      // Try to parse epoch progress from YOHO output
-      const match = data.text.match(/Epoch\s*(\d+)\/(\d+)/);
-      if (match) {
-        const current = parseInt(match[1]);
-        const total = parseInt(match[2]);
-        const pct = Math.round((current / total) * 100);
-        progressFill.style.width = pct + '%';
-        percentText.textContent = pct + '%';
-        statusText.textContent = `Training… Epoch ${current}/${total}`;
-        // Update epoch progress
-        const epFill = document.getElementById('progress-epoch-fill');
+      const text = data.text;
+
+      // Process both stdout and stderr (tqdm outputs to stderr)
+      if (data.type === 'stderr') {
+        // tqdm format: "Epoch 1/20: 45%|████▌   | 45/100 [00:30<00:36]"
+        const epochMatch = text.match(/Epoch\s*(\d+)\/(\d+)/i);
+        const batchMatch = text.match(/\|\s*(\d+)\/(\d+)\s*\[/);
+        if (epochMatch) {
+          const current = parseInt(epochMatch[1]);
+          const total = parseInt(epochMatch[2]);
+          const pct = Math.round((current / total) * 100);
+          progressFill.style.width = pct + '%';
+          percentText.textContent = pct + '%';
+          statusText.textContent = `Training… Epoch ${current}/${total}`;
+          document.getElementById('training-epoch-text').textContent = `Epoch ${current}/${total}`;
+        }
+        if (batchMatch) {
+          const bc = parseInt(batchMatch[1]);
+          const bt = parseInt(batchMatch[2]);
+          const bpct = Math.round((bc / bt) * 100);
+          document.getElementById('training-batch-text').textContent = `${bc}/${bt}`;
+          document.getElementById('progress-batch-fill').style.width = bpct + '%';
+        }
+        return;
+      }
+
+      if (data.type === 'stdout') {
+        statusText.textContent = text.trim().split('\n').pop() || 'Training…';
+        // Try to parse epoch progress from YOHO output
+        const match = text.match(/Epoch[:\s]*(\d+)\/(\d+)/i);
+        if (match) {
+          const current = parseInt(match[1]);
+          const total = parseInt(match[2]);
+          const pct = Math.round((current / total) * 100);
+          progressFill.style.width = pct + '%';
+          percentText.textContent = pct + '%';
+          statusText.textContent = `Training… Epoch ${current}/${total}`;
+          // Update epoch progress
+          const epFill = document.getElementById('progress-epoch-fill');
         if (epFill) {
           const freezeEpochs = parseInt(document.getElementById('setting-freeze-epochs')?.value) || 20;
           const epPct = ((current % freezeEpochs) / freezeEpochs) * 100;
@@ -4585,9 +4638,9 @@ if (isElectron) {
 // Init
 (function initPatientModule() {
   initDemoData();
+  loadSettings();
   renderPatientList();
   updateDashboardStats();
-  // Ensure sidebar nav is visible
   setWorkflowMode(false);
 })();
 </script>
