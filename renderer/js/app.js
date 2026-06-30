@@ -673,9 +673,12 @@ async function labelingFinishPhase() {
     showToast('请至少放置 2 个采样点', 'error');
     return;
   }
+  const finishBtn = document.getElementById('labeling-btn-finish');
+  if (finishBtn && finishBtn.disabled) return;
   const sel = PatientManager.getSelectedImage();
   if (!sel) return;
   const patient = PatientManager.getSelectedPatient();
+  setBtnLoading(finishBtn, true, '保存中…');
   // Convert to image coordinates
   const scale = labelingState.scale;
   const sampleImagePoints = labelingState.points.map(p => ({
@@ -696,6 +699,7 @@ async function labelingFinishPhase() {
 
   if (result.code !== 0) {
     showToast('保存采样数据失败: ' + result.stderr.slice(-60), 'error');
+    setBtnLoading(finishBtn, false);
     return;
   }
 
@@ -709,6 +713,7 @@ async function labelingFinishPhase() {
   StorageAdapter.reset();
   showToast('采样已保存 — 进入数据集生成', 'success');
   switchModule('dataset');
+  setBtnLoading(finishBtn, false);
 }
 
 function updateLabelingButtons() {
@@ -1266,11 +1271,10 @@ async function startTraining() {
   const percentText = document.getElementById('training-percent');
   const trainBtn = document.getElementById('train-btn');
   const accuracyDisplay = document.getElementById('accuracy-display');
+  if (trainBtn && trainBtn.disabled) return;
 
   progressArea.classList.remove('hidden');
-  trainBtn.disabled = true;
-  trainBtn.textContent = '训练中…';
-  trainBtn.style.opacity = '0.6';
+  setBtnLoading(trainBtn, true, '训练中…');
 
   const pngName = getCurrentPngName();
 
@@ -1336,9 +1340,7 @@ async function startTraining() {
 
   const result = await runPythonScript('train_medical.py', ['--png_name', pngName]);
 
-  trainBtn.disabled = false;
-  trainBtn.textContent = '开始训练';
-  trainBtn.style.opacity = '1';
+  setBtnLoading(trainBtn, false);
   progressFill.style.width = '100%';
   percentText.textContent = '100%';
 
@@ -1360,17 +1362,14 @@ async function runPrediction() {
   const predictBtn = document.getElementById('predict-btn');
   const label = document.getElementById('prediction-label');
   const confidence = document.getElementById('prediction-confidence');
+  if (predictBtn && predictBtn.disabled) return;
 
-  predictBtn.disabled = true;
-  predictBtn.textContent = '分析中…';
-  predictBtn.style.opacity = '0.6';
+  setBtnLoading(predictBtn, true, '分析中…');
 
   const pngName = getCurrentPngName();
   const result = await runPythonScript('predict.py', ['--png_name', pngName]);
 
-  predictBtn.disabled = false;
-  predictBtn.textContent = '开始预测';
-  predictBtn.style.opacity = '1';
+  setBtnLoading(predictBtn, false);
 
   if (result.code === 0) {
     resultArea.classList.remove('hidden');
@@ -1400,10 +1399,35 @@ async function runPrediction() {
 /* ============================================
    Generate Dataset
    ============================================ */
+/* ============================================
+   Loading State — 防重复点击
+   ============================================ */
+const _loadingBtns = new Set();
+function setBtnLoading(btn, loading, loadingText) {
+  if (!btn) return;
+  if (loading) {
+    if (btn.disabled) return; // 已禁用（如依赖缺失）不覆盖
+    _loadingBtns.add(btn);
+    btn._origDisabled = btn.disabled;
+    btn._origText = btn.textContent;
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    if (loadingText) btn.textContent = loadingText;
+  } else {
+    btn.disabled = btn._origDisabled || false;
+    btn.style.opacity = '1';
+    if (btn._origText !== undefined) btn.textContent = btn._origText;
+    _loadingBtns.delete(btn);
+  }
+}
+
 async function generateDataset() {
+  const datasetBtn = document.getElementById('dataset-btn');
+  if (datasetBtn && datasetBtn.disabled) return;
   const pngName = getCurrentPngName();
   const sampleCount = parseInt(document.getElementById('setting-sample-count').value) || 350;
   const totalImgs = sampleCount * 4;
+  setBtnLoading(datasetBtn, true, '生成中…');
   document.getElementById('dataset-count-tag').textContent = totalImgs + ' 图像数';
   document.getElementById('dataset-progress-area').classList.remove('hidden');
   document.getElementById('dataset-progress-fill').style.width = '0%';
@@ -1448,6 +1472,7 @@ async function generateDataset() {
   } else {
     showToast('数据集生成失败', 'error');
   }
+  setBtnLoading(datasetBtn, false);
 }
 
 /* ============================================
