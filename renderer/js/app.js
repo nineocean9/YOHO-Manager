@@ -122,6 +122,21 @@ function roiInitCanvas(image) {
     updateRoiButtons();
     updateRoiHint();
     updateZoomLabel();
+
+    // Check for auto-saved draft
+    const draft = roiLoadDraft();
+    if (draft && draft.path === (image.path || image.src) && draft.points && draft.points.length > 0) {
+      showConfirmModal('发现未保存的ROI标注草稿，是否恢复？', function() {
+        roiState.points = draft.points;
+        roiState.isClosed = draft.isClosed || false;
+        roiState.reverseRoi = draft.reverseRoi || false;
+        document.getElementById('roi-reverse-roi').checked = roiState.reverseRoi;
+        roiRedraw();
+        updateRoiButtons();
+        updateRoiHint();
+        showToast('已恢复 ROI 草稿', 'info');
+      });
+    }
   };
   img.onerror = function() {
     if (placeholder) placeholder.innerHTML = '<span style=\"color:rgba(255,255,255,0.5)\">图像加载失败</span>';
@@ -291,6 +306,7 @@ function roiHandleCanvasClick(e) {
       roiRedraw();
       updateRoiButtons();
       updateRoiHint();
+      roiSaveDraft();
       showToast('多边形已闭合', 'success');
       return;
     }
@@ -300,6 +316,7 @@ function roiHandleCanvasClick(e) {
   roiRedraw();
   updateRoiButtons();
   updateRoiHint();
+  roiSaveDraft();
 }
 
 function roiHandleContextMenu(e) {
@@ -314,6 +331,7 @@ function roiUndo() {
   roiRedraw();
   updateRoiButtons();
   updateRoiHint();
+  roiSaveDraft();
 }
 
 function roiClear() {
@@ -322,8 +340,8 @@ function roiClear() {
   roiRedraw();
   updateRoiButtons();
   updateRoiHint();
+  roiSaveDraft();
 }
-
 function roiSmooth() {
   if (roiState.points.length < 4) {
     showToast('至少需要4个点才能平滑', 'error');
@@ -346,10 +364,38 @@ function roiSmooth() {
   roiState.points = pts;
   roiRedraw();
   showToast('平滑已应用', 'success');
+  roiSaveDraft();
+}
+
+/* ============================================
+   ROI Draft (auto-save)
+   ============================================ */
+const ROI_DRAFT_KEY = 'yoho-roi-draft';
+function roiSaveDraft() {
+  if (!roiState._lastPath) return;
+  try {
+    const draft = {
+      path: roiState._lastPath,
+      points: roiState.points,
+      isClosed: roiState.isClosed,
+      reverseRoi: roiState.reverseRoi
+    };
+    localStorage.setItem(ROI_DRAFT_KEY, JSON.stringify(draft));
+  } catch(e) {}
+}
+function roiClearDraft() {
+  try { localStorage.removeItem(ROI_DRAFT_KEY); } catch(e) {}
+}
+function roiLoadDraft() {
+  try {
+    const raw = localStorage.getItem(ROI_DRAFT_KEY);
+    if (!raw) return null;
+    const draft = JSON.parse(raw);
+    return draft;
+  } catch(e) { return null; }
 }
 
 function updateRoiButtons() {
-  const hasPoints = roiState.points.length > 0;
   const isClosed = roiState.isClosed;
   document.getElementById('roi-btn-undo').disabled = !hasPoints || isClosed;
   document.getElementById('roi-btn-smooth').disabled = roiState.points.length < 4;
@@ -426,6 +472,7 @@ function saveRoiAndNext() {
   });
   StorageAdapter.updatePatient(patient.id, { status: 'processing' });
   StorageAdapter.reset();
+  roiClearDraft();
   showToast('ROI 已保存 — 进入交互式标注', 'success');
   switchModule('labeling');
 }
@@ -604,6 +651,7 @@ function labelingHandleCanvasClick(e) {
     updateLabelingButtons();
     updateLabelingHint();
   }
+  labelingSaveDraft();
 }
 
 function labelingHandleContextMenu(e) {
@@ -658,6 +706,7 @@ function labelingUndo() {
   labelingRedraw();
   updateLabelingButtons();
   updateLabelingHint();
+  labelingSaveDraft();
 }
 
 function labelingClear() {
@@ -666,6 +715,7 @@ function labelingClear() {
   labelingRedraw();
   updateLabelingButtons();
   updateLabelingHint();
+  labelingSaveDraft();
 }
 
 async function labelingFinishPhase() {
@@ -711,6 +761,7 @@ async function labelingFinishPhase() {
   });
   StorageAdapter.updatePatient(patient.id, { status: 'processing' });
   StorageAdapter.reset();
+  labelingClearDraft();
   showToast('采样已保存 — 进入数据集生成', 'success');
   switchModule('dataset');
   setBtnLoading(finishBtn, false);
@@ -733,6 +784,25 @@ function updateLabelingHint() {
     el.textContent = '左键点击放置采样圈，再次点击调整半径，右键撤销，至少放置 2 个';
   }
   if (countEl) countEl.textContent = labelingState.points.length + ' 个采样点';
+}
+
+/* ============================================
+   Labeling Draft (auto-save)
+   ============================================ */
+const LABELING_DRAFT_KEY = 'yoho-labeling-draft';
+function labelingSaveDraft() {
+  if (!labelingState._lastPath) return;
+  try {
+    localStorage.setItem(LABELING_DRAFT_KEY, JSON.stringify({
+      path: labelingState._lastPath,
+      points: labelingState.points,
+      phase: labelingState.phase,
+      reverseRoi: labelingState.reverseRoi
+    }));
+  } catch(e) {}
+}
+function labelingClearDraft() {
+  try { localStorage.removeItem(LABELING_DRAFT_KEY); } catch(e) {}
 }
 
 /* ============================================
@@ -841,6 +911,20 @@ function labelingLoadImage(path) {
     labelingRedraw();
     updateLabelingButtons();
     updateLabelingHint();
+
+    // Check for auto-saved labeling draft
+    const draft = (() => { try { return JSON.parse(localStorage.getItem('yoho-labeling-draft')); } catch(e) { return null; } })();
+    if (draft && draft.path === path && draft.points && draft.points.length > 0) {
+      showConfirmModal('发现未保存的采样草稿，是否恢复？', function() {
+        labelingState.points = draft.points;
+        labelingState.phase = draft.phase || 1;
+        labelingState.reverseRoi = draft.reverseRoi || false;
+        labelingRedraw();
+        updateLabelingButtons();
+        updateLabelingHint();
+        showToast('已恢复采样草稿', 'info');
+      });
+    }
   };
   img.src = path;
 }
@@ -862,6 +946,25 @@ function labelingLoadImage(path) {
     }
   });
 })();
+
+/* ============================================
+   Global Keyboard Shortcuts
+   ============================================ */
+document.addEventListener('keydown', (e) => {
+  // Ctrl+Z: Undo in ROI or Labeling canvas
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+    const activePanel = document.querySelector('.module-panel.active');
+    if (!activePanel) return;
+    const id = activePanel.id;
+    if (id === 'module-roi') {
+      e.preventDefault();
+      roiUndo();
+    } else if (id === 'module-labeling') {
+      e.preventDefault();
+      labelingUndo();
+    }
+  }
+});
 
 function switchModule(moduleName) {
   // Update sidebar active state
@@ -1203,6 +1306,20 @@ function showToast(message, type = 'info') {
 }
 
 /* ============================================
+   Error Log Panel
+   ============================================ */
+let _lastErrorStderr = '';
+function showErrorPanel(stderr, title) {
+  _lastErrorStderr = stderr;
+  const panel = document.getElementById('error-panel');
+  const content = document.getElementById('error-panel-content');
+  const titleEl = panel.querySelector('.error-panel-title');
+  if (titleEl && title) titleEl.textContent = title;
+  content.textContent = stderr || '(无错误输出)';
+  panel.classList.remove('hidden');
+}
+
+/* ============================================
    Modal
    ============================================ */
 function openModal(id) {
@@ -1257,6 +1374,7 @@ async function runPythonScript(scriptName, args = []) {
     showToast(`${scriptName} 执行成功`, 'success');
   } else {
     showToast(`${scriptName} 执行失败 (code ${result.code})`, 'error');
+    showErrorPanel(result.stderr || result.stdout || '无输出', `错误: ${scriptName}`);
   }
   return result;
 }
@@ -1815,7 +1933,7 @@ function renderDashboard() {
     };
     const statusLabel = statusLabels[img.status] || 'New';
     const thumbContent = img.path
-      ? `<img src="${img.path}" alt="${escHtml(img.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy"><div class="image-card-thumb-placeholder" style="display:none"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`
+      ? `<div class="skeleton-loading"></div><img src="${img.path}" alt="${escHtml(img.name)}" onerror="this.style.display='none';this.previousElementSibling.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy" onload="this.previousElementSibling.style.display='none'"><div class="image-card-thumb-placeholder" style="display:none"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`
       : `<div class="image-card-thumb-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
     return `<div class="image-card${selected}" onclick="PatientManager.selectImage('${img.id}')" oncontextmenu="deleteImageWithConfirm('${patient.id}','${checkId}','${img.id}')" data-image-id="${img.id}">
       <div class="image-card-thumb">

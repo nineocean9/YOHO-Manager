@@ -565,6 +565,17 @@
   </div><!-- /content-area -->
 </div><!-- /app-layout -->
 
+<!-- 错误日志面板 -->
+<div class="error-panel hidden" id="error-panel">
+  <div class="error-panel-header">
+    <span class="error-panel-title">错误日志</span>
+    <div>
+      <button class="btn btn-ghost btn-xs" onclick="document.getElementById('error-panel-content').textContent='';document.getElementById('error-panel').classList.add('hidden')">关闭</button>
+    </div>
+  </div>
+  <pre class="error-panel-content" id="error-panel-content"></pre>
+</div>
+
 <!-- 设置 Modal -->
 <div class="modal-overlay hidden" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal">
