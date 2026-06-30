@@ -416,16 +416,68 @@ function setupIPC() {
     try {
       const dir = path.dirname(configPath);
       fs.mkdirSync(dir, { recursive: true });
-      // Merge with existing
       let existing = {};
       try { existing = JSON.parse(fs.readFileSync(configPath, 'utf8')); } catch {}
       const merged = { ...existing, ...data };
-      // Deep merge dataset/training/prediction keys
       if (data.dataset) merged.dataset = { ...existing.dataset, ...data.dataset };
       if (data.training) merged.training = { ...existing.training, ...data.training };
       if (data.prediction) merged.prediction = { ...existing.prediction, ...data.prediction };
       fs.writeFileSync(configPath, JSON.stringify(merged, null, 2) + '\n');
       return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  });
+
+  // List patient's historical models
+  ipcMain.handle('list-patient-models', async (_, patientId) => {
+    try {
+      const modelsDir = path.join(__dirname, 'backend', 'YOHO-main', 'logs', 'models', patientId);
+      if (!fs.existsSync(modelsDir)) return { models: [] };
+      const models = [];
+      fs.readdirSync(modelsDir).forEach(name => {
+        const modelDir = path.join(modelsDir, name);
+        if (!fs.statSync(modelDir).isDirectory()) return;
+        const metaPath = path.join(modelDir, 'meta.json');
+        let meta = {};
+        try { meta = JSON.parse(fs.readFileSync(metaPath, 'utf8')); } catch {}
+        const weightFiles = fs.readdirSync(modelDir).filter(f => f.endsWith('.pth'));
+        if (weightFiles.length === 0) return;
+        models.push({
+          id: name,
+          name: meta.name || name,
+          weightPath: path.join(modelDir, weightFiles[0]),
+          epoch: meta.epoch || 0,
+          accuracy: meta.accuracy || null,
+          trainedAt: meta.trainedAt || null,
+          trainedFromImage: meta.trainedFromImage || null
+        });
+      });
+      models.sort((a, b) => (b.trainedAt || '').localeCompare(a.trainedAt || ''));
+      return { models };
+    } catch (err) {
+      return { models: [], error: err.message };
+    }
+  });
+
+  // Save model to patient archive after training
+  ipcMain.handle('archive-model', async (_, patientId, modelName, sourceWeightPath, meta) => {
+    try {
+      const modelDir = path.join(__dirname, 'backend', 'YOHO-main', 'logs', 'models', patientId, modelName);
+      fs.mkdirSync(modelDir, { recursive: true });
+      // Copy weight file
+      const destWeight = path.join(modelDir, path.basename(sourceWeightPath));
+      fs.copyFileSync(sourceWeightPath, destWeight);
+      // Write meta
+      fs.writeFileSync(path.join(modelDir, 'meta.json'), JSON.stringify({
+        name: modelName,
+        epoch: meta.epoch || 30,
+        accuracy: meta.accuracy || null,
+        trainedAt: new Date().toISOString(),
+        trainedFromImage: meta.trainedFromImage || null,
+        ...meta
+      }, null, 2));
+      return { success: true, path: destWeight };
     } catch (err) {
       return { success: false, error: err.message };
     }

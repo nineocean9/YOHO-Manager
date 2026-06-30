@@ -27,6 +27,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readConfig: () => ipcRenderer.invoke('read-config'),
   writeConfig: (data) => ipcRenderer.invoke('write-config', data),
 
+  // --- Model Archive (per patient) ---
+  listPatientModels: (patientId) => ipcRenderer.invoke('list-patient-models', patientId),
+  archiveModel: (patientId, modelName, sourceWeightPath, meta) => ipcRenderer.invoke('archive-model', patientId, modelName, sourceWeightPath, meta),
+
   // --- Window Controls ---
   minimizeWindow: () => ipcRenderer.send('minimize-window'),
   maximizeWindow: () => ipcRenderer.send('maximize-window'),

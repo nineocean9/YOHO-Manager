@@ -541,8 +541,8 @@
               <div class="text-muted">上传图像并点击预测进行分析</div>
             </div>
             <div style="display:flex;gap:var(--space-3);flex-wrap:wrap">
-              <select class="select-input" id="predict-model-select" aria-label="Select model for prediction">
-                <option>EEC-UNet-ResNet34 (Esophageal)</option>
+              <select class="select-input" id="predict-model-select" aria-label="选择预测模型">
+                <option value="">当前图像模型 (默认)</option>
               </select>
               <button class="btn btn-primary" id="predict-btn" onclick="runPrediction()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8.5A4.5 4.5 0 0 1 8.5 12"/><polyline points="8.5 12 12 8.5 15.5 12"/></svg>

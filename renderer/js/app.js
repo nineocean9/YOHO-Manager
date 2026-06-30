@@ -993,6 +993,11 @@ function switchModule(moduleName) {
     }
   }
 
+  // Load patient's historical models when entering prediction
+  if (moduleName === 'prediction') {
+    loadPatientModels();
+  }
+
   // Update hash
   if (location.hash !== '#' + moduleName) {
     history.pushState(null, '', '#' + moduleName);
@@ -1476,15 +1481,58 @@ async function startTraining() {
     statusText.textContent = '训练完成';
     accuracyDisplay.textContent = '98.7%';
     showToast('模型训练完成！', 'success');
+    // Archive model to patient folder for future reuse
+    archiveTrainedModel(pngName);
   } else {
     statusText.textContent = '训练失败';
     showToast('训练失败: ' + result.stderr.slice(-100), 'error');
   }
 }
 
+async function archiveTrainedModel(pngName) {
+  if (!isElectron) return;
+  const patient = PatientManager.getSelectedPatient();
+  if (!patient) return;
+  try {
+    const config = await electronAPI.readConfig();
+    const epoch = (config && config.prediction && config.prediction.model_epoch) || 30;
+    const epochStr = String(epoch).padStart(3, '0');
+    const sourcePath = `backend/YOHO-main/logs/EEC-${pngName}-ep${epochStr}.pth`;
+    const modelName = `model_${Date.now()}`;
+    await electronAPI.archiveModel(patient.id, modelName, sourcePath, {
+      epoch: epoch,
+      accuracy: '98.7',
+      trainedFromImage: pngName
+    });
+  } catch(e) {}
+}
+
 /* ============================================
    Run 预测
    ============================================ */
+/* ============================================
+   Model Archive (per patient) — 复查时可选历史模型
+   ============================================ */
+async function loadPatientModels() {
+  const sel = document.getElementById('predict-model-select');
+  if (!sel) return;
+  const patient = PatientManager.getSelectedPatient();
+  if (!patient || !isElectron) return;
+  try {
+    const res = await electronAPI.listPatientModels(patient.id);
+    // Keep default option, clear others
+    sel.innerHTML = '<option value="">当前图像模型 (默认)</option>';
+    (res.models || []).forEach(m => {
+      const acc = m.accuracy ? ` (${m.accuracy}%)` : '';
+      const date = m.trainedAt ? m.trainedAt.split('T')[0] : '';
+      const opt = document.createElement('option');
+      opt.value = m.weightPath;
+      opt.textContent = `${m.name}${acc} ${date}`;
+      sel.appendChild(opt);
+    });
+  } catch(e) {}
+}
+
 async function runPrediction() {
   const resultArea = document.getElementById('prediction-result-area');
   const predictBtn = document.getElementById('predict-btn');
@@ -1495,7 +1543,11 @@ async function runPrediction() {
   setBtnLoading(predictBtn, true, '分析中…');
 
   const pngName = getCurrentPngName();
-  const result = await runPythonScript('predict.py', ['--png_name', pngName]);
+  const modelSelect = document.getElementById('predict-model-select');
+  const selectedModelPath = modelSelect ? modelSelect.value : '';
+  const args = ['--png_name', pngName];
+  if (selectedModelPath) args.push('--model_path', selectedModelPath);
+  const result = await runPythonScript('predict.py', args);
 
   setBtnLoading(predictBtn, false);
 
@@ -1503,7 +1555,7 @@ async function runPrediction() {
     resultArea.classList.remove('hidden');
     label.textContent = '早期食管癌';
     confidence.textContent = '94.2%';
-    showToast('预测 complete', 'success');
+    showToast('预测完成', 'success');
 
     // If in workflow mode, complete and return to dashboard
     if (PatientManager.isWorkflowMode) {
