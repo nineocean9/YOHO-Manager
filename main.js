@@ -326,7 +326,7 @@ function setupIPC() {
     return new Promise((resolve) => {
       const proc = spawn(pythonCmd, [scriptName, ...args], {
         cwd: backendDir,
-        env: { ...process.env, PYTHONUNBUFFERED: '1' },
+        env: { ...process.env, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8' },
       });
 
       let stdout = '';

@@ -135,7 +135,11 @@ if __name__ == "__main__":
         # 计算每轮迭代步数
         epoch_step = len(train_lines) // batch_size
         if epoch_step == 0:
-            raise ValueError("数据集过小，无法训练，请扩充数据集。")
+            raise ValueError(
+                f"Dataset too small to train. "
+                f"Need at least {batch_size} images, but only {len(train_lines)} found in train.txt. "
+                f"Please generate more data (settings > sample_count) and rebuild the index."
+            )
 
         # 初始化优化器和学习率调度器
         optimizer = optim.Adam(model_train.parameters(), lr)
@@ -190,7 +194,11 @@ if __name__ == "__main__":
 
         epoch_step = len(train_lines) // batch_size
         if epoch_step == 0:
-            raise ValueError("数据集过小，无法训练，请扩充数据集。")
+            raise ValueError(
+                f"Dataset too small to train. "
+                f"Need at least {batch_size} images, but only {len(train_lines)} found in train.txt. "
+                f"Please generate more data (settings > sample_count) and rebuild the index."
+            )
 
         # 重新初始化优化器（学习率改变）
         optimizer = optim.Adam(model_train.parameters(), lr)

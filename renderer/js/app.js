@@ -1406,6 +1406,13 @@ async function startTraining() {
   const accuracyDisplay = document.getElementById('accuracy-display');
   if (trainBtn && trainBtn.disabled) return;
 
+  // Check dataset size before training
+  const trainCount = parseInt(localStorage.getItem('mediscan-actual-image-count')) || 0;
+  if (trainCount < 32) {
+    showToast(`训练图像不足: 当前${trainCount}张，至少需要32张。请先生成更多数据集。`, 'error');
+    return;
+  }
+
   progressArea.classList.remove('hidden');
   setBtnLoading(trainBtn, true, '训练中…');
 
