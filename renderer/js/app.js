@@ -396,6 +396,7 @@ function roiLoadDraft() {
 }
 
 function updateRoiButtons() {
+  const hasPoints = roiState.points.length > 0;
   const isClosed = roiState.isClosed;
   document.getElementById('roi-btn-undo').disabled = !hasPoints || isClosed;
   document.getElementById('roi-btn-smooth').disabled = roiState.points.length < 4;
