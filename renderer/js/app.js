@@ -1407,7 +1407,24 @@ async function generateDataset() {
 /* ============================================
    PatientManager — Data Layer
    ============================================ */
-const StorageAdapter = {
+/* ============================================
+   Storage Interface — 可插拔数据层
+   当前实现: LocalStorageAdapter
+   未来可加: MySQLAdapter (实现相同接口即可无缝替换)
+   ============================================ */
+const StorageInterface = {
+  getPatients() { throw new Error('not implemented'); },
+  getPatient(id) { throw new Error('not implemented'); },
+  addPatient(data) { throw new Error('not implemented'); },
+  updatePatient(id, data) { throw new Error('not implemented'); },
+  deletePatient(id) { throw new Error('not implemented'); },
+  addImages(patientId, checkId, imageFiles) { throw new Error('not implemented'); },
+  updateImage(patientId, checkId, imageId, data) { throw new Error('not implemented'); },
+  deleteImage(patientId, checkId, imageId) { throw new Error('not implemented'); },
+  reset() { throw new Error('not implemented'); }
+};
+
+const LocalStorageAdapter = Object.assign({}, StorageInterface, {
   _key: 'yoho-patient-db',
   _data: null,
 
@@ -1519,7 +1536,10 @@ const StorageAdapter = {
   reset() {
     this._data = null;
   }
-};
+});
+
+// 当前使用的存储适配器（切换到 MySQL 时只需改这一行）
+const StorageAdapter = LocalStorageAdapter;
 
 const PatientManager = {
   _selectedPatientId: null,
