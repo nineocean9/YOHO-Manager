@@ -23,6 +23,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // --- Python Dependency Check ---
   checkPythonDeps: () => ipcRenderer.invoke('check-python-deps'),
 
+  // --- Config Sync ---
+  readConfig: () => ipcRenderer.invoke('read-config'),
+  writeConfig: (data) => ipcRenderer.invoke('write-config', data),
+
   // --- Window Controls ---
   minimizeWindow: () => ipcRenderer.send('minimize-window'),
   maximizeWindow: () => ipcRenderer.send('maximize-window'),

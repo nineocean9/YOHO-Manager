@@ -1014,23 +1014,33 @@ const SETTINGS_KEYS = ['setting-sample-count'];
 function saveSettings() {
   const count = document.getElementById('setting-sample-count').value;
   try { localStorage.setItem('mediscan-sample-count', count); } catch(e) {}
-  // Update dataset tag to match setting
   const tag = document.getElementById('dataset-count-tag');
   if (tag) tag.textContent = (parseInt(count) || 350) * 4 + ' 图像数';
+  // Sync to backend config.json
+  if (isElectron) {
+    electronAPI.writeConfig({ dataset: { sample_count: parseInt(count) || 350 } });
+  }
   closeModal('settings-modal');
   showToast('设置已保存', 'success');
 }
 
 function loadSettings() {
+  // Try loading from backend config.json first
+  if (isElectron) {
+    electronAPI.readConfig().then(config => {
+      if (config && config.dataset && config.dataset.sample_count) {
+        document.getElementById('setting-sample-count').value = config.dataset.sample_count;
+      }
+    }).catch(() => {});
+  }
+  // Fallback to localStorage
   try {
     const saved = localStorage.getItem('mediscan-sample-count');
     if (saved) document.getElementById('setting-sample-count').value = saved;
   } catch(e) {}
-  // Dataset tag: always from settings
   const settingCount = parseInt(document.getElementById('setting-sample-count')?.value) || 350;
   const tag = document.getElementById('dataset-count-tag');
   if (tag) tag.textContent = settingCount * 4 + ' 图像数';
-  // Training metric: from actual count if generated, otherwise 0
   const actualCount = parseInt(localStorage.getItem('mediscan-actual-image-count')) || 0;
   const metric = document.getElementById('metric-dataset-count');
   if (metric) metric.textContent = actualCount || '--';
@@ -1539,6 +1549,26 @@ function setBtnLoading(btn, loading, loadingText) {
   }
 }
 
+/* ============================================
+   Progress Parser — supports legacy and JSON format
+   Legacy: PROGRESS:current/total
+   JSON:   PROGRESS_JSON:{"step":"...","current":50,"total":500,"message":"..."}
+   ============================================ */
+function parseProgress(text) {
+  // JSON format first
+  try {
+    const jsonMatch = text.match(/PROGRESS_JSON:\s*(\{.*?\})/);
+    if (jsonMatch) {
+      const p = JSON.parse(jsonMatch[1]);
+      if (p.total > 0) return { pct: Math.round((p.current / p.total) * 100), current: p.current, total: p.total, message: p.message || '' };
+    }
+  } catch(e) {}
+  // Legacy format
+  const legacy = text.match(/PROGRESS:(\d+)\/(\d+)/);
+  if (legacy) return { pct: Math.round((parseInt(legacy[1]) / parseInt(legacy[2])) * 100), current: parseInt(legacy[1]), total: parseInt(legacy[2]) };
+  return null;
+}
+
 async function generateDataset() {
   const datasetBtn = document.getElementById('dataset-btn');
   if (datasetBtn && datasetBtn.disabled) return;
@@ -1555,11 +1585,10 @@ async function generateDataset() {
 
   onPythonOutput((data) => {
     if (data.type === 'stdout') {
-      const match = data.text.match(/PROGRESS:(\d+)\/(\d+)/);
-      if (match) {
-        const pct = Math.round((parseInt(match[1]) / parseInt(match[2])) * 100);
-        document.getElementById('dataset-progress-fill').style.width = pct + '%';
-        document.getElementById('dataset-progress-pct').textContent = pct + '%';
+      const p = parseProgress(data.text);
+      if (p) {
+        document.getElementById('dataset-progress-fill').style.width = p.pct + '%';
+        document.getElementById('dataset-progress-pct').textContent = p.pct + '%';
       }
     }
   });

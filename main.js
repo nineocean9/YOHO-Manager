@@ -403,6 +403,33 @@ function setupIPC() {
       numpy: numpyRes.code === 0
     };
   });
+
+  // Config sync with backend
+  const configPath = path.join(__dirname, 'backend', 'YOHO-main', 'config.json');
+  ipcMain.handle('read-config', async () => {
+    try {
+      const raw = fs.readFileSync(configPath, 'utf8');
+      return JSON.parse(raw);
+    } catch { return null; }
+  });
+  ipcMain.handle('write-config', async (_, data) => {
+    try {
+      const dir = path.dirname(configPath);
+      fs.mkdirSync(dir, { recursive: true });
+      // Merge with existing
+      let existing = {};
+      try { existing = JSON.parse(fs.readFileSync(configPath, 'utf8')); } catch {}
+      const merged = { ...existing, ...data };
+      // Deep merge dataset/training/prediction keys
+      if (data.dataset) merged.dataset = { ...existing.dataset, ...data.dataset };
+      if (data.training) merged.training = { ...existing.training, ...data.training };
+      if (data.prediction) merged.prediction = { ...existing.prediction, ...data.prediction };
+      fs.writeFileSync(configPath, JSON.stringify(merged, null, 2) + '\n');
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  });
 }
 
 // ============================================
