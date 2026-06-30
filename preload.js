@@ -20,6 +20,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // --- File Save ---
   saveFile: (filePath, base64Data) => ipcRenderer.invoke('save-file', filePath, base64Data),
 
+  // --- Python Dependency Check ---
+  checkPythonDeps: () => ipcRenderer.invoke('check-python-deps'),
+
   // --- Window Controls ---
   minimizeWindow: () => ipcRenderer.send('minimize-window'),
   maximizeWindow: () => ipcRenderer.send('maximize-window'),

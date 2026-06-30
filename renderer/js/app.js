@@ -9,6 +9,52 @@ if (isElectron) {
     document.getElementById('app-version-badge').textContent =
       `MediScan AI v${info.version}`;
   });
+  checkPythonDependencies();
+}
+
+let _pythonDepsOK = false;
+
+async function checkPythonDependencies() {
+  try {
+    const deps = await electronAPI.checkPythonDeps();
+    _pythonDepsOK = deps.python && deps.torch && deps.cv2 && deps.numpy;
+
+    if (!_pythonDepsOK) {
+      const missing = [];
+      if (!deps.python) missing.push('Python');
+      else {
+        if (!deps.torch) missing.push('PyTorch');
+        if (!deps.cv2) missing.push('OpenCV');
+        if (!deps.numpy) missing.push('NumPy');
+      }
+      showToast('Python 依赖缺失: ' + missing.join(', ') + '，后端功能已禁用', 'error');
+      disableBackendButtons();
+    } else {
+      showToast('Python 环境就绪 (' + (deps.version || '') + ')', 'success');
+    }
+  } catch (e) {
+    // 非 Electron 环境静默
+  }
+}
+
+function disableBackendButtons() {
+  const ids = ['labeling-btn-finish', 'train-btn', 'predict-btn'];
+  ids.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.title = 'Python 依赖缺失，功能不可用';
+    }
+  });
+  // 数据集生成按钮没有 id，用文本查找
+  document.querySelectorAll('button').forEach(btn => {
+    if (btn.textContent.trim() === '生成数据集') {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.title = 'Python 依赖缺失，功能不可用';
+    }
+  });
 }
 
 /* ============================================

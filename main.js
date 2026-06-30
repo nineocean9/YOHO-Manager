@@ -372,6 +372,37 @@ function setupIPC() {
       return { success: false, error: err.message };
     }
   });
+
+  // Check Python and key dependencies
+  ipcMain.handle('check-python-deps', async () => {
+    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+    const check = (args) => new Promise((resolve) => {
+      const p = spawn(pythonCmd, args, { env: { ...process.env, PYTHONUNBUFFERED: '1' } });
+      let out = '';
+      p.stdout.on('data', d => out += d.toString());
+      p.stderr.on('data', d => out += d.toString());
+      p.on('close', code => resolve({ code, out }));
+      p.on('error', () => resolve({ code: -1, out: '' }));
+    });
+
+    const pyRes = await check(['--version']);
+    if (pyRes.code !== 0) {
+      return { python: false, torch: false, cv2: false, numpy: false, version: null };
+    }
+    const version = pyRes.out.trim();
+
+    const torchRes = await check(['-c', 'import torch; print(torch.__version__)']);
+    const cv2Res = await check(['-c', 'import cv2; print(cv2.__version__)']);
+    const numpyRes = await check(['-c', 'import numpy; print(numpy.__version__)']);
+
+    return {
+      python: true,
+      version: version,
+      torch: torchRes.code === 0,
+      cv2: cv2Res.code === 0,
+      numpy: numpyRes.code === 0
+    };
+  });
 }
 
 // ============================================
