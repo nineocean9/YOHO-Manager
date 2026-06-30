@@ -420,13 +420,21 @@ function updateRoiHint() {
 }
 
 function saveRoiAndNext() {
+  // Auto-close if 3+ points and save clicked without close
+  if (!roiState.isClosed && roiState.points.length >= 3) {
+    roiState.isClosed = true;
+    roiRedraw();
+    updateRoiButtons();
+    updateRoiHint();
+  }
   if (!roiState.isClosed) {
-    showToast('请先闭合 ROI 多边形', 'error');
+    showToast('请先闭合 ROI 多边形（靠近起点点击或点击保存自动闭合）', 'error');
     return;
   }
   const sel = PatientManager.getSelectedImage();
-  if (!sel) return;
+  if (!sel) { showToast('未选中图像，请先选择患者', 'error'); return; }
   const patient = PatientManager.getSelectedPatient();
+  if (!patient) { showToast('未选中患者', 'error'); return; }
 
   // Convert ROI canvas points back to image coordinates
   const roiImagePoints = roiState.points.map(p => roiCanvasToImage(p.x, p.y));
@@ -454,14 +462,11 @@ function saveRoiAndNext() {
   const base64 = offscreen.toDataURL('image/png').split(',')[1];
   if (isElectron) {
     electronAPI.saveFile(maskRelPath, base64).then(result => {
-      if (!result.success) showToast('ROI mask 写入失败: ' + result.error, 'error');
+      if (result.success) showToast('ROI mask 已写入磁盘', 'success');
+      else showToast('ROI mask 写入失败: ' + result.error, 'error');
     });
   } else {
-    // Browser fallback: download
-    const a = document.createElement('a');
-    a.href = offscreen.toDataURL('image/png');
-    a.download = maskFilename;
-    a.click();
+    showToast('浏览器模式: ROI mask 未写入磁盘，需在 Electron 中运行才能保存', 'info');
   }
 
   StorageAdapter.updateImage(patient.id, sel.check.id, sel.image.id, {
