@@ -15,7 +15,8 @@ from utils.utils import cvtColor, preprocess_input, resize_image
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--png_name", default="dummy", help="Input image name")
-args = parser.parse_args()
+parser.add_argument("--model_path", default=None, help="Custom model weight path")
+args, _unknown = parser.parse_known_args()
 
 dataset_name = "EEC"
 
